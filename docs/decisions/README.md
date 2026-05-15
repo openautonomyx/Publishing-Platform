@@ -7,6 +7,8 @@ Use ADRs for major product, architecture, protocol, deployment, and data-model d
 ## Decisions
 
 - [0001: Use k3s as the default lightweight Kubernetes target](0001-use-k3s-for-lightweight-kubernetes.md)
+- [0002: Use SurrealDB as the unified backend](0002-use-surrealdb-as-unified-backend.md)
+- [0003: Use Astro as the default web framework](0003-use-astro-as-default-web-framework.md)
 
 ## ADR Template
 
