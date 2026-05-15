@@ -7,14 +7,13 @@ publishing-platform:
     apt-get install -y --no-install-recommends ca-certificates
     corepack enable
     mkdir -p /app
-  build_only: false
-  import:
-    - . /app
-  run: |
     cd /app
     pnpm install --frozen-lockfile
     pnpm build
     pnpm store prune
+  build_only: false
+  import:
+    - . /app
   entrypoint:
     - /usr/bin/node
     - /app/apps/web/dist/server/entry.mjs
