@@ -28,7 +28,9 @@ jobs:
       - name: Build and push OCI image
         uses: project-stacker/stacker-build-push-action@v1.1.1
         with:
-          stacker-file: stacker.yaml
-          image: ghcr.io/openautonomyx/publishing-platform:latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          file: stacker.yaml
+          url: docker://ghcr.io/openautonomyx/publishing-platform
+          tags: latest
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          layer-type: tar
