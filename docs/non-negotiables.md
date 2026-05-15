@@ -1,28 +1,59 @@
 # Platform ground rules
 
-These platform choices are non-negotiable.
+These choices are non-negotiable at the platform level.
 
-## Non-negotiable choices
+Implementation choices are reviewable.
 
-- AI-native
-- Cloud-native
-- Automation-native
+## Publishing and content management
+
+- Professional publishing
+- Structured content management
+- Editorial workflow support
 - Multimodal publishing
 - Multilingual publishing
-- Location as a first-class concept
-- Time as a first-class concept
-- Schema.org support where public semantic metadata fits
-- Open search and discovery standards
-- Composable architecture
-- Professional publishing
-- RBAC support
-- API-first access
 - Feed support through open feed formats
 - Canvas support through browser/web fundamentals
 
-## Reviewable implementation choices
+## Taxonomy and semantics
 
-Implementation choices are reviewable.
+- Schema.org support where public semantic metadata fits
+- Taxonomy support for topics, tags, authors, collections, locations, and content types
+- Location as a first-class concept
+- Time as a first-class concept
+
+## Infrastructure
+
+- Cloud-native architecture
+- CNCF or CNCF-aligned infrastructure where it helps
+- Lightweight runtime where possible
+- Open standards for externally visible protocols
+
+## Data storage and portability
+
+- Portable identifiers where they exist
+- Open Location Code / Plus Codes for location identity
+- WGS84 latitude/longitude for coordinates
+- Operational data stored in the chosen database layer
+- Public meaning exposed through appropriate standards
+
+## AI and automation
+
+- AI-native workflows
+- Automation support through OpenAPI, MCP, triggers, and webhooks
+- Tenant-owned automation endpoints
+
+## Discovery and distribution
+
+- Open search and discovery standards
+- Metadata
+- Canonical URLs
+- Sitemaps
+- robots.txt
+- hreflang
+- Feed discovery
+- Structured data where appropriate
+
+## Reviewable implementation choices
 
 Current implementation choices include:
 
@@ -42,8 +73,6 @@ Current implementation choices include:
 - operational tooling
 
 ## Notes
-
-Open search and discovery standards include metadata, canonical URLs, sitemaps, robots.txt, hreflang, feed discovery, and structured data where appropriate.
 
 Feed support means using open formats such as RSS, Atom, and JSON Feed.
 
