@@ -26,7 +26,29 @@ jobs:
           if [ "${GITHUB_REF_TYPE}" != "tag" ]; then VERSION="latest"; fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "ghcr_image=ghcr.io/openautonomyx/publishing-platform:${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "dockerhub_image=${{ secrets.DOCKERHUB_USERNAME }}/publishing-platform:${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch registry secrets from Infisical API
+        if: ${{ secrets.INFISICAL_TOKEN != '' && secrets.INFISICAL_PROJECT_ID != '' }}
+        env:
+          INFISICAL_API_URL: ${{ secrets.INFISICAL_API_URL || 'https://app.infisical.com' }}
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+          INFISICAL_ENVIRONMENT: ${{ secrets.INFISICAL_ENVIRONMENT || 'prod' }}
+        run: |
+          RESPONSE=$(curl -fsS \
+            -H "Authorization: Bearer $INFISICAL_TOKEN" \
+            "$INFISICAL_API_URL/api/v3/secrets/raw?workspaceId=$INFISICAL_PROJECT_ID&environment=$INFISICAL_ENVIRONMENT&secretPath=/")
+
+          echo "DOCKERHUB_USERNAME=$(echo "$RESPONSE" | jq -r '.secrets[] | select(.secretKey == "DOCKERHUB_USERNAME") | .secretValue')" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_TOKEN=$(echo "$RESPONSE" | jq -r '.secrets[] | select(.secretKey == "DOCKERHUB_TOKEN") | .secretValue')" >> "$GITHUB_ENV"
+          echo "ZOT_REGISTRY=$(echo "$RESPONSE" | jq -r '.secrets[] | select(.secretKey == "ZOT_REGISTRY") | .secretValue')" >> "$GITHUB_ENV"
+          echo "ZOT_USERNAME=$(echo "$RESPONSE" | jq -r '.secrets[] | select(.secretKey == "ZOT_USERNAME") | .secretValue')" >> "$GITHUB_ENV"
+          echo "ZOT_PASSWORD=$(echo "$RESPONSE" | jq -r '.secrets[] | select(.secretKey == "ZOT_PASSWORD") | .secretValue')" >> "$GITHUB_ENV"
+
+      - name: Set external image metadata
+        run: |
+          echo "dockerhub_image=${DOCKERHUB_USERNAME}/publishing-platform:${{ steps.meta.outputs.version || 'latest' }}" >> "$GITHUB_ENV"
+          echo "zot_image=${ZOT_REGISTRY}/openautonomyx/publishing-platform:${{ steps.meta.outputs.version || 'latest' }}" >> "$GITHUB_ENV"
 
       - name: Install Stacker
         run: |
@@ -43,7 +65,6 @@ jobs:
 
       - name: Publish to GHCR
         env:
-          REGISTRY_AUTH_FILE: /tmp/containers-auth.json
           GHCR_IMAGE: ${{ steps.meta.outputs.ghcr_image }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -51,11 +72,13 @@ jobs:
           sudo stacker publish --url "docker://$GHCR_IMAGE" publishing-platform
 
       - name: Publish to Docker Hub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
-        env:
-          DOCKERHUB_IMAGE: ${{ steps.meta.outputs.dockerhub_image }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
         run: |
           echo "$DOCKERHUB_TOKEN" | skopeo login docker.io -u "$DOCKERHUB_USERNAME" --password-stdin
-          sudo stacker publish --url "docker://$DOCKERHUB_IMAGE" publishing-platform
+          sudo stacker publish --url "docker://$dockerhub_image" publishing-platform
+
+      - name: Publish to Zot
+        if: ${{ env.ZOT_REGISTRY != '' && env.ZOT_USERNAME != '' && env.ZOT_PASSWORD != '' }}
+        run: |
+          echo "$ZOT_PASSWORD" | skopeo login "$ZOT_REGISTRY" -u "$ZOT_USERNAME" --password-stdin
+          sudo stacker publish --url "docker://$zot_image" publishing-platform
