@@ -1,0 +1,13 @@
+---
+const { tenant } = Astro.params;
+---
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width" /><title>{tenant} Content</title></head>
+  <body>
+    <main>
+      <h1>Content</h1>
+      <p>Manage content entries for {tenant}.</p>
+      <a href={`/${tenant}/cms/content/new`}>New content</a>
+    </main>
+  </body>
+</html>
