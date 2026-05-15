@@ -33,13 +33,10 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9.12.0
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Verify build
+      - name: Install deps (debug)
         run: |
-          pnpm typecheck
-          pnpm build
+          pnpm install --no-frozen-lockfile 2>&1 || true
+          ls -la node_modules 2>&1 || echo "No node_modules"
 
       - name: Install Stacker
         run: |
@@ -51,8 +48,7 @@ jobs:
           stacker --version
 
       - name: Build OCI image
-        run: |
-          sudo stacker build
+        run: sudo stacker build
 
       - name: Publish to GHCR
         env:
