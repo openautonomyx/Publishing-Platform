@@ -1,30 +1,14 @@
 # Publishing Platform
 
-**An AI-native, cloud-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
+**An AI-native, cloud-native, automation-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
 
 Publishing Platform is built for research organizations, think tanks, universities, analysts, experts, institutions, and knowledge-driven teams that need to publish credible, high-quality, evidence-backed content at scale.
 
-The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, optimize for discovery, and operate from one unified backend.
+The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, connect their own automations, optimize for discovery, and operate from one unified backend.
 
 ## Vision
 
-Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, and knowledge graphs.
-
-This platform is designed for organizations and experts who publish:
-
-- Opinion essays
-- Research reports
-- Policy briefs
-- Analysis pieces
-- Expert commentary
-- Data-backed articles
-- Multilingual editions
-- Region-specific perspectives
-- Time-sensitive analysis
-- Multimodal explainers
-- Institutional knowledge
-
-It should feel as easy as a modern SaaS tool, but powerful enough for serious publishing teams.
+Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, knowledge graphs, AI agents, and automation ecosystems.
 
 ## Product Principles
 
@@ -49,10 +33,6 @@ Planned AI capabilities:
 
 ### Cloud Native
 
-The platform should be built for modern cloud deployment from day one.
-
-Core expectations:
-
 - Multi-tenant architecture
 - Custom domains
 - Serverless-friendly deployment
@@ -61,25 +41,45 @@ Core expectations:
 - API-first backend
 - Secure authentication and access control
 
+### Automation Native
+
+Automation should work through tenant-owned endpoints and platform events.
+
+The platform will not embed n8n as a tenant-facing automation builder. Instead, tenants can connect their own automation tools using OpenAPI, MCP, triggers, webhooks, and APIs.
+
+Supported automation targets can include:
+
+- n8n
+- Zapier
+- Make
+- Pipedream
+- Custom webhook endpoints
+- Internal enterprise systems
+- AI agents through MCP
+
+Core automation capabilities:
+
+- OpenAPI specification
+- MCP server interface
+- Tenant-configured webhooks
+- Signed webhook delivery
+- Event subscriptions
+- Platform triggers
+- API keys and scoped tokens
+- Editorial notifications
+- Content approval triggers
+- Scheduled distribution triggers
+- Translation pipeline triggers
+- AI enrichment triggers
+- Newsletter handoff triggers
+- CRM and lead capture integrations
+- Analytics and reporting automations
+
 ### Multimodal
 
-Publishing should not be limited to text.
-
-Supported content types should include:
-
-- Articles
-- Reports
-- PDFs
-- Charts
-- Images
-- Tables
-- Data files
-- Embeds
-- Audio and video later
+Publishing should support articles, reports, PDFs, charts, images, tables, data files, embeds, and later audio/video.
 
 ### Multilingual
-
-The platform should support publishing across languages from the beginning.
 
 Core multilingual capabilities:
 
@@ -87,16 +87,12 @@ Core multilingual capabilities:
 - Translation workflow
 - Locale-aware slugs
 - Locale-aware SEO metadata
-- RTL language support later
 - Language switcher on public pages
 - Tenant-level default language
 - Per-publication language settings
+- RTL support later
 
 ### Location as a Primitive
-
-Publishing often depends on geography.
-
-Location should be modeled directly instead of treated as plain text.
 
 Core location capabilities:
 
@@ -108,10 +104,6 @@ Core location capabilities:
 - Maps and regional pages later
 
 ### Time as a Primitive
-
-Authoritative publishing depends on temporal context.
-
-Time should be modeled directly across the platform.
 
 Core time capabilities:
 
@@ -127,8 +119,6 @@ Core time capabilities:
 
 ### Schema.org Native
 
-Structured data should be part of the publishing model, not an afterthought.
-
 Core Schema.org capabilities:
 
 - Article schema
@@ -137,15 +127,12 @@ Core Schema.org capabilities:
 - Report schema
 - Person and Organization schema
 - Breadcrumb schema
-- FAQ schema later
 - Dataset schema later
 - JSON-LD generation
 - Tenant-level publisher identity
 - Author and contributor metadata
 
 ### SEO Native
-
-Discovery should be built into the core workflow.
 
 Core SEO capabilities:
 
@@ -164,8 +151,6 @@ Core SEO capabilities:
 
 ### Composable
 
-The system should be modular and extensible.
-
 Core modules:
 
 - Publishing
@@ -177,6 +162,10 @@ Core modules:
 - Auth
 - Tenant management
 - AI workflows
+- OpenAPI
+- MCP
+- Triggers
+- Webhooks
 - Translation workflows
 - Location workflows
 - Time workflows
@@ -185,15 +174,11 @@ Core modules:
 
 ### Professional
 
-This is not a casual blogging tool.
-
-It is designed for credible publishing, institutional trust, and polished presentation.
+This is not a casual blogging tool. It is designed for credible publishing, institutional trust, and polished presentation.
 
 ## Core Product Loop
 
 A user can sign up, create a workspace, write an article, publish it, and view it on a public URL.
-
-That loop comes first.
 
 ## Stack
 
@@ -211,6 +196,8 @@ That loop comes first.
 | Billing | Stripe |
 | Hosting | Vercel |
 | AI | OpenAI-compatible model layer |
+| Automation | OpenAPI, MCP, triggers, webhooks |
+| Optional Automation Targets | n8n, Zapier, Make, Pipedream, custom endpoints |
 | i18n | Locale-aware routing and content model |
 | Location | Structured geo metadata |
 | Time | Timezone-aware temporal metadata |
@@ -221,7 +208,7 @@ That loop comes first.
 
 SurrealDB is the backend foundation because it supports structured records, document-style content, graph relationships, flexible schemas, permissions, search, and real-time capabilities in one system.
 
-That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, locations, timelines, schema entities, SEO metadata, media, and reports are deeply connected.
+That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, locations, timelines, schema entities, SEO metadata, automation events, webhook endpoints, API clients, MCP tools, media, and reports are deeply connected.
 
 ## Architecture
 
@@ -229,6 +216,8 @@ That makes it a strong fit for a multi-tenant publishing platform where tenants,
 User -> Next.js app -> Server actions/API routes -> SurrealDB
                                       |
                                       -> Cloudflare R2 for media
+                                      -> OpenAPI / MCP / triggers / webhooks
+                                      -> Tenant automation endpoints
 ```
 
 External services:
@@ -237,6 +226,7 @@ External services:
 - Stripe for billing
 - PostHog for analytics
 - Vercel for hosting
+- Tenant-owned automation tools through webhooks and APIs
 - OpenAI-compatible APIs for AI workflows
 
 ## Core Data Model
@@ -251,9 +241,12 @@ External services:
 - `timeline_event` — temporal context for content, reports, and events
 - `seo_metadata` — search and social metadata
 - `schema_entity` — structured data for JSON-LD output
+- `automation_event` — platform event emitted for automation
+- `trigger` — platform event definition that can start workflows
+- `webhook_endpoint` — tenant-owned automation destination
+- `api_client` — tenant API client credentials and scopes
+- `mcp_tool` — AI-agent accessible platform capability
 - `media_asset` — uploaded images, PDFs, and files
-
-Every tenant-owned record should include a tenant reference.
 
 ## MVP Scope
 
@@ -272,6 +265,8 @@ Every tenant-owned record should include a tenant reference.
 - Published and updated timestamps
 - Basic SEO metadata
 - Article JSON-LD
+- Basic automation events
+- Basic webhook endpoint model
 
 ### Soon After
 
@@ -286,6 +281,10 @@ Every tenant-owned record should include a tenant reference.
 - XML sitemaps
 - hreflang support
 - Publisher and author schema
+- OpenAPI spec
+- Signed webhook delivery
+- Trigger catalog
+- MCP server interface
 
 ### Later
 
@@ -302,6 +301,9 @@ Every tenant-owned record should include a tenant reference.
 - Redirect management
 - Search preview
 - Advanced schema types
+- Automation templates
+- Webhook replay and delivery logs
+- Fine-grained API scopes
 
 ## Suggested Repository Structure
 
@@ -330,8 +332,9 @@ Build the publishing loop:
 5. Create membership records
 6. Create article records
 7. Add language, location, time, SEO, and schema metadata
-8. Add a simple article editor
-9. Render public article pages with metadata and JSON-LD
+8. Add basic automation events and webhook endpoints
+9. Add a simple article editor
+10. Render public article pages with metadata and JSON-LD
 
 Success path:
 
@@ -344,7 +347,10 @@ Success path:
 ## Development Principles
 
 - Build the core loop first
-- Treat language, location, time, SEO, and Schema.org as primitives
+- Treat language, location, time, SEO, Schema.org, and automation as primitives
+- Expose OpenAPI, MCP, triggers, and webhooks
+- Let tenants connect their own automation tools
+- Do not embed n8n as a tenant-facing builder
 - Keep the backend unified
 - Avoid unnecessary infrastructure
 - Add complexity only when usage demands it
