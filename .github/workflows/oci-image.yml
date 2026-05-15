@@ -1,0 +1,52 @@
+name: OCI Image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image metadata
+        id: meta
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then VERSION="latest"; fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "ghcr_image=ghcr.io/openautonomyx/publishing-platform:${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "dockerhub_image=${{ secrets.DOCKERHUB_USERNAME }}/publishing-platform:${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Stacker
+        run: |
+          echo "Install Stacker according to https://github.com/project-stacker/stacker"
+          echo "This workflow is a template until the final Stacker install command is pinned."
+
+      - name: Build OCI image
+        run: |
+          echo "stacker build"
+
+      - name: Publish to GHCR
+        if: ${{ secrets.GITHUB_TOKEN != '' }}
+        run: |
+          echo "Publish OCI image to ${{ steps.meta.outputs.ghcr_image }}"
+
+      - name: Publish to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        run: |
+          echo "Publish OCI image to ${{ steps.meta.outputs.dockerhub_image }}"
+
+      - name: Publish to other OCI registries
+        run: |
+          echo "Add registry targets as needed: ECR, GCR, ACR, Harbor, Quay, self-hosted registry."
