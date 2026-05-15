@@ -30,23 +30,32 @@ jobs:
 
       - name: Install Stacker
         run: |
-          echo "Install Stacker according to https://github.com/project-stacker/stacker"
-          echo "This workflow is a template until the final Stacker install command is pinned."
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends lxc uidmap skopeo umoci jq curl ca-certificates
+          curl -L https://github.com/project-stacker/stacker/releases/latest/download/stacker -o stacker
+          chmod +x stacker
+          sudo mv stacker /usr/local/bin/stacker
+          stacker --version
 
       - name: Build OCI image
         run: |
-          echo "stacker build"
+          sudo stacker build
 
       - name: Publish to GHCR
-        if: ${{ secrets.GITHUB_TOKEN != '' }}
+        env:
+          REGISTRY_AUTH_FILE: /tmp/containers-auth.json
+          GHCR_IMAGE: ${{ steps.meta.outputs.ghcr_image }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Publish OCI image to ${{ steps.meta.outputs.ghcr_image }}"
+          echo "$GITHUB_TOKEN" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+          sudo stacker publish --url "docker://$GHCR_IMAGE" publishing-platform
 
       - name: Publish to Docker Hub
         if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        env:
+          DOCKERHUB_IMAGE: ${{ steps.meta.outputs.dockerhub_image }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          echo "Publish OCI image to ${{ steps.meta.outputs.dockerhub_image }}"
-
-      - name: Publish to other OCI registries
-        run: |
-          echo "Add registry targets as needed: ECR, GCR, ACR, Harbor, Quay, self-hosted registry."
+          echo "$DOCKERHUB_TOKEN" | skopeo login docker.io -u "$DOCKERHUB_USERNAME" --password-stdin
+          sudo stacker publish --url "docker://$DOCKERHUB_IMAGE" publishing-platform
