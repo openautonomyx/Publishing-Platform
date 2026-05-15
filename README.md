@@ -1,14 +1,14 @@
 # Publishing Platform
 
-**An AI-native, cloud-native, automation-native, feed-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
+**An AI-native, cloud-native, automation-native, feed-native, canvas-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
 
 Publishing Platform is built for research organizations, think tanks, universities, analysts, experts, institutions, and knowledge-driven teams that need to publish credible, high-quality, evidence-backed content at scale.
 
-The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, syndicate through feeds, connect their own automations, optimize for discovery, and operate from one unified backend.
+The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, create visual assets, syndicate through feeds, connect their own automations, optimize for discovery, and operate from one unified backend.
 
 ## Vision
 
-Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, knowledge graphs, AI agents, automation ecosystems, and content feeds.
+Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, knowledge graphs, AI agents, automation ecosystems, content feeds, and visual canvases.
 
 ## Product Principles
 
@@ -95,9 +95,30 @@ Core feed capabilities:
 - Custom collection feeds
 - Feed discovery metadata
 
+### Canvas Native
+
+Visual composition should be part of the publishing workflow.
+
+Fabric.js can power an interactive canvas layer for creating, editing, and exporting publication graphics.
+
+Core canvas capabilities:
+
+- Visual explainers
+- Quote cards
+- Social cards
+- Report covers
+- Chart annotations
+- Image annotations
+- Diagram blocks
+- Reusable design templates
+- Tenant-branded visual assets
+- Export to image formats
+- Canvas blocks embedded inside articles
+- AI-assisted visual generation later
+
 ### Multimodal
 
-Publishing should support articles, reports, PDFs, charts, images, tables, data files, embeds, and later audio/video.
+Publishing should support articles, reports, PDFs, charts, images, tables, data files, embeds, canvas graphics, and later audio/video.
 
 ### Multilingual
 
@@ -176,6 +197,7 @@ Core modules:
 
 - Publishing
 - Editor
+- Canvas
 - Media
 - Feeds
 - Search
@@ -211,6 +233,7 @@ A user can sign up, create a workspace, write an article, publish it, and view i
 | Styling | Tailwind CSS |
 | UI | shadcn/ui |
 | Editor | Tiptap |
+| Canvas | Fabric.js |
 | Database | SurrealDB |
 | Auth | Clerk |
 | Media Storage | Cloudflare R2 |
@@ -231,7 +254,7 @@ A user can sign up, create a workspace, write an article, publish it, and view i
 
 SurrealDB is the backend foundation because it supports structured records, document-style content, graph relationships, flexible schemas, permissions, search, and real-time capabilities in one system.
 
-That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, feeds, locations, timelines, schema entities, SEO metadata, automation events, webhook endpoints, API clients, MCP tools, media, and reports are deeply connected.
+That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, feeds, locations, timelines, canvas documents, schema entities, SEO metadata, automation events, webhook endpoints, API clients, MCP tools, media, and reports are deeply connected.
 
 ## Architecture
 
@@ -242,6 +265,7 @@ User -> Next.js app -> Server actions/API routes -> SurrealDB
                                       -> OpenAPI / MCP / triggers / webhooks
                                       -> Tenant automation endpoints
                                       -> RSS / Atom / JSON feeds
+                                      -> Fabric.js canvas documents
 ```
 
 External services:
@@ -262,6 +286,8 @@ External services:
 - `article` — canonical publishable content owned by a tenant
 - `article_translation` — language-specific article version
 - `feed` — syndication definition for RSS, Atom, or JSON Feed output
+- `canvas_document` — editable Fabric.js canvas source document
+- `canvas_asset` — exported image or reusable visual asset
 - `location` — structured geography for content and tenants
 - `timeline_event` — temporal context for content, reports, and events
 - `seo_metadata` — search and social metadata
@@ -310,6 +336,8 @@ External services:
 - Atom feeds
 - JSON Feed
 - Tag, author, language, and location feeds
+- Basic Fabric.js canvas editor
+- Canvas export to image
 - OpenAPI spec
 - Signed webhook delivery
 - Trigger catalog
@@ -334,6 +362,8 @@ External services:
 - Webhook replay and delivery logs
 - Fine-grained API scopes
 - Custom collection feeds
+- Canvas templates
+- AI-assisted visual composition
 
 ## Suggested Repository Structure
 
@@ -345,6 +375,7 @@ Publishing-Platform/
 │   ├── ui/
 │   ├── db/
 │   ├── editor/
+│   ├── canvas/
 │   └── shared/
 ├── infra/
 ├── docs/
@@ -378,9 +409,10 @@ Success path:
 ## Development Principles
 
 - Build the core loop first
-- Treat language, location, time, SEO, Schema.org, feeds, and automation as primitives
+- Treat language, location, time, SEO, Schema.org, feeds, canvas, and automation as primitives
 - Expose RSS, Atom, JSON Feed, OpenAPI, MCP, triggers, and webhooks
 - Let tenants connect their own automation tools
+- Use Fabric.js for visual canvas composition
 - Do not embed n8n as a tenant-facing builder
 - Keep the backend unified
 - Avoid unnecessary infrastructure
