@@ -1,0 +1,1 @@
+{"name":"@publishing-platform/core","version":"0.0.0","private":true,"type":"module","main":"src/index.ts","dependencies":{"@publishing-platform/schema":"workspace:*","@publishing-platform/auth":"workspace:*"},"devDependencies":{"typescript":"^5.6.3"},"scripts":{"typecheck":"tsc --noEmit"}}
