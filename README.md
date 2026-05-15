@@ -41,6 +41,22 @@ Planned AI capabilities:
 - API-first backend
 - Secure authentication and access control
 
+### Astro Native
+
+Astro is the frontend foundation for lightweight, content-first publishing.
+
+The platform uses Astro for fast public pages and React islands only where interactivity is needed.
+
+Core Astro benefits:
+
+- Excellent publishing performance
+- Low client-side JavaScript
+- Strong SEO foundation
+- Content-first routing
+- Easy feed and sitemap generation
+- React islands for Tiptap and Fabric.js
+- Clean separation between public content and interactive tools
+
 ### Automation Native
 
 Automation should work through tenant-owned endpoints and platform events.
@@ -228,18 +244,19 @@ A user can sign up, create a workspace, write an article, publish it, and view i
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | Next.js |
+| Frontend | Astro |
+| Interactive Islands | React |
 | Language | TypeScript |
 | Styling | Tailwind CSS |
-| UI | shadcn/ui |
-| Editor | Tiptap |
-| Canvas | Fabric.js |
+| UI | shadcn/ui-inspired components |
+| Editor | Tiptap in React island |
+| Canvas | Fabric.js in React island |
 | Database | SurrealDB |
 | Auth | Clerk |
 | Media Storage | Cloudflare R2 |
 | Analytics | PostHog |
 | Billing | Stripe |
-| Hosting | Vercel |
+| Hosting | Vercel or Cloudflare Pages |
 | AI | OpenAI-compatible model layer |
 | Automation | OpenAPI, MCP, triggers, webhooks |
 | Optional Automation Targets | n8n, Zapier, Make, Pipedream, custom endpoints |
@@ -250,6 +267,30 @@ A user can sign up, create a workspace, write an article, publish it, and view i
 | Schema | Schema.org / JSON-LD |
 | SEO | Metadata, sitemaps, canonical URLs, hreflang, feed discovery |
 
+## Why Astro
+
+Astro is the frontend foundation because this is a publishing-first platform.
+
+It keeps public pages fast, lightweight, SEO-friendly, and content-native while still allowing rich interactive tools through islands.
+
+Use Astro for:
+
+- Public publication pages
+- Article pages
+- Landing pages
+- Feeds
+- Sitemaps
+- SEO metadata
+- Schema.org JSON-LD
+
+Use React islands for:
+
+- Tiptap editor
+- Fabric.js canvas editor
+- Dashboard widgets
+- Interactive analytics
+- Complex admin workflows
+
 ## Why SurrealDB
 
 SurrealDB is the backend foundation because it supports structured records, document-style content, graph relationships, flexible schemas, permissions, search, and real-time capabilities in one system.
@@ -259,13 +300,13 @@ That makes it a strong fit for a multi-tenant publishing platform where tenants,
 ## Architecture
 
 ```text
-User -> Next.js app -> Server actions/API routes -> SurrealDB
-                                      |
-                                      -> Cloudflare R2 for media
-                                      -> OpenAPI / MCP / triggers / webhooks
-                                      -> Tenant automation endpoints
-                                      -> RSS / Atom / JSON feeds
-                                      -> Fabric.js canvas documents
+User -> Astro app -> Server endpoints / API routes -> SurrealDB
+                              |
+                              -> React islands for Tiptap and Fabric.js
+                              -> Cloudflare R2 for media
+                              -> OpenAPI / MCP / triggers / webhooks
+                              -> Tenant automation endpoints
+                              -> RSS / Atom / JSON feeds
 ```
 
 External services:
@@ -273,7 +314,7 @@ External services:
 - Clerk for authentication
 - Stripe for billing
 - PostHog for analytics
-- Vercel for hosting
+- Vercel or Cloudflare Pages for hosting
 - Tenant-owned automation tools through webhooks and APIs
 - OpenAI-compatible APIs for AI workflows
 
@@ -370,7 +411,7 @@ External services:
 ```text
 Publishing-Platform/
 ├── apps/
-│   └── web/
+│   └── web/                 # Astro app
 ├── packages/
 │   ├── ui/
 │   ├── db/
@@ -386,17 +427,18 @@ Publishing-Platform/
 
 Build the publishing loop:
 
-1. Create a Next.js app
-2. Connect SurrealDB
-3. Add Clerk auth
-4. Create tenant records
-5. Create membership records
-6. Create article records
-7. Add language, location, time, SEO, and schema metadata
-8. Add basic feed generation
-9. Add basic automation events and webhook endpoints
-10. Add a simple article editor
-11. Render public article pages with metadata and JSON-LD
+1. Create an Astro app
+2. Add React islands
+3. Connect SurrealDB
+4. Add Clerk auth
+5. Create tenant records
+6. Create membership records
+7. Create article records
+8. Add language, location, time, SEO, and schema metadata
+9. Add basic feed generation
+10. Add basic automation events and webhook endpoints
+11. Add a simple Tiptap article editor
+12. Render public article pages with metadata and JSON-LD
 
 Success path:
 
@@ -409,6 +451,8 @@ Success path:
 ## Development Principles
 
 - Build the core loop first
+- Use Astro as the lightweight publishing-first frontend
+- Use React islands only for interactive tools
 - Treat language, location, time, SEO, Schema.org, feeds, canvas, and automation as primitives
 - Expose RSS, Atom, JSON Feed, OpenAPI, MCP, triggers, and webhooks
 - Let tenants connect their own automation tools
