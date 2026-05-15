@@ -12,7 +12,7 @@ These platform choices are non-negotiable.
 - Location as a first-class concept
 - Time as a first-class concept
 - Schema.org support where public semantic metadata fits
-- SEO support
+- Open search and discovery standards
 - Composable architecture
 - Professional publishing
 - RBAC support
@@ -42,6 +42,8 @@ Current implementation choices include:
 - operational tooling
 
 ## Notes
+
+Open search and discovery standards include metadata, canonical URLs, sitemaps, robots.txt, hreflang, feed discovery, and structured data where appropriate.
 
 Feed support means using open formats such as RSS, Atom, and JSON Feed.
 
