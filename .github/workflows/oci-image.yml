@@ -41,12 +41,14 @@ jobs:
 
       - name: Install Stacker
         run: |
-          sudo apt-get update
-          sudo apt-get install -y lxc uidmap skopeo umoci jq curl ca-certificates
-          curl -sL https://github.com/project-stacker/stacker/releases/download/v0.0.1/stacker -o stacker
+          uname -m
+          ARCH=$(uname -m)
+          URL="https://github.com/project-stacker/stacker/releases/download/v1.2.0/stacker-linux-$ARCH"
+          if [ "$ARCH" = "x86_64" ]; then URL="https://github.com/project-stacker/stacker/releases/download/v1.2.0/stacker-linux-amd64"; fi
+          curl -sL "$URL" -o stacker
           chmod +x stacker
           sudo mv stacker /usr/local/bin/
-          file /usr/local/bin/stacker
+          stacker --version
 
       - name: Build OCI image
         run: sudo stacker build
