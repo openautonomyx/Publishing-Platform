@@ -1,9 +1,8 @@
-name: OCI Image
+name: Build and Publish
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,52 +10,17 @@ permissions:
   packages: write
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set image metadata
-        id: meta
-        run: |
-          VERSION="${GITHUB_REF_NAME}"
-          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then VERSION="latest"; fi
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "ghcr_image=ghcr.io/openautonomyx/publishing-platform:${VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Install Node.js 22
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install pnpm
-        run: npm install -g pnpm@9.12.0
+      - run: npm install -g pnpm@9.12.0
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --no-frozen-lockfile
 
-      - name: Verify build
-        run: pnpm build
-
-      - name: Install Stacker
-        run: |
-          uname -m
-          ARCH=$(uname -m)
-          URL="https://github.com/project-stacker/stacker/releases/download/v1.2.0/stacker-linux-$ARCH"
-          if [ "$ARCH" = "x86_64" ]; then URL="https://github.com/project-stacker/stacker/releases/download/v1.2.0/stacker-linux-amd64"; fi
-          curl -sL "$URL" -o stacker
-          chmod +x stacker
-          sudo mv stacker /usr/local/bin/
-          stacker --version
-
-      - name: Build OCI image
-        run: sudo stacker build
-
-      - name: Publish to GHCR
-        env:
-          GHCR_IMAGE: ${{ steps.meta.outputs.ghcr_image }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "$GITHUB_TOKEN" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
-          sudo stacker publish --url "docker://$GHCR_IMAGE" publishing-platform
+      - run: pnpm build
