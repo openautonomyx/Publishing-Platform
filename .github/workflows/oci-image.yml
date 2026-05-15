@@ -1,4 +1,4 @@
-name: Build and Publish
+name: Build and Publish OCI
 
 on:
   push:
@@ -25,33 +25,22 @@ jobs:
 
       - run: pnpm build
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Install Stacker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lxc uidmap skopeo umoci jq curl
+          curl -sL https://github.com/project-stacker/stacker/releases/download/v1.2.0/stacker-linux-amd64 -o stacker
+          chmod +x stacker
+          sudo mv stacker /usr/local/bin/
+          stacker --version
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build OCI image
+        run: sudo stacker build
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/openautonomyx/publishing-platform
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=
-            type=raw,value=latest,enable=true
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Publish to GHCR
+        env:
+          GHCR_IMAGE: ghcr.io/openautonomyx/publishing-platform:latest
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GITHUB_TOKEN" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+          sudo stacker publish --url "docker://$GHCR_IMAGE" publishing-platform
