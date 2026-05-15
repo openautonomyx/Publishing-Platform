@@ -1,14 +1,14 @@
 # Publishing Platform
 
-**An AI-native, cloud-native, automation-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
+**An AI-native, cloud-native, automation-native, feed-native, multimodal, multilingual, location-aware, time-aware, Schema.org-native, SEO-native, composable, professional publishing platform for authoritative opinions.**
 
 Publishing Platform is built for research organizations, think tanks, universities, analysts, experts, institutions, and knowledge-driven teams that need to publish credible, high-quality, evidence-backed content at scale.
 
-The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, connect their own automations, optimize for discovery, and operate from one unified backend.
+The goal is to let any organization launch a polished publishing presence, manage contributors, publish authoritative articles and reports, customize branding, localize content, contextualize by geography and time, syndicate through feeds, connect their own automations, optimize for discovery, and operate from one unified backend.
 
 ## Vision
 
-Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, knowledge graphs, AI agents, and automation ecosystems.
+Build the professional publishing infrastructure for authoritative voices across languages, formats, markets, locations, time, search engines, knowledge graphs, AI agents, automation ecosystems, and content feeds.
 
 ## Product Principles
 
@@ -74,6 +74,26 @@ Core automation capabilities:
 - Newsletter handoff triggers
 - CRM and lead capture integrations
 - Analytics and reporting automations
+
+### Feed Native
+
+Content syndication should be built into the publishing layer.
+
+Core feed capabilities:
+
+- RSS feeds
+- Atom feeds
+- JSON Feed
+- Tenant-level feeds
+- Author feeds
+- Tag feeds
+- Topic feeds
+- Language-specific feeds
+- Location-specific feeds
+- Time-period feeds
+- Report feeds
+- Custom collection feeds
+- Feed discovery metadata
 
 ### Multimodal
 
@@ -146,6 +166,7 @@ Core SEO capabilities:
 - Locale-aware routing
 - hreflang support
 - Structured data
+- Feed discovery links
 - Redirect management later
 - Search preview in editor later
 
@@ -156,6 +177,7 @@ Core modules:
 - Publishing
 - Editor
 - Media
+- Feeds
 - Search
 - Analytics
 - Billing
@@ -198,17 +220,18 @@ A user can sign up, create a workspace, write an article, publish it, and view i
 | AI | OpenAI-compatible model layer |
 | Automation | OpenAPI, MCP, triggers, webhooks |
 | Optional Automation Targets | n8n, Zapier, Make, Pipedream, custom endpoints |
+| Feeds | RSS, Atom, JSON Feed |
 | i18n | Locale-aware routing and content model |
 | Location | Structured geo metadata |
 | Time | Timezone-aware temporal metadata |
 | Schema | Schema.org / JSON-LD |
-| SEO | Metadata, sitemaps, canonical URLs, hreflang |
+| SEO | Metadata, sitemaps, canonical URLs, hreflang, feed discovery |
 
 ## Why SurrealDB
 
 SurrealDB is the backend foundation because it supports structured records, document-style content, graph relationships, flexible schemas, permissions, search, and real-time capabilities in one system.
 
-That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, locations, timelines, schema entities, SEO metadata, automation events, webhook endpoints, API clients, MCP tools, media, and reports are deeply connected.
+That makes it a strong fit for a multi-tenant publishing platform where tenants, users, memberships, articles, translations, authors, tags, feeds, locations, timelines, schema entities, SEO metadata, automation events, webhook endpoints, API clients, MCP tools, media, and reports are deeply connected.
 
 ## Architecture
 
@@ -218,6 +241,7 @@ User -> Next.js app -> Server actions/API routes -> SurrealDB
                                       -> Cloudflare R2 for media
                                       -> OpenAPI / MCP / triggers / webhooks
                                       -> Tenant automation endpoints
+                                      -> RSS / Atom / JSON feeds
 ```
 
 External services:
@@ -237,6 +261,7 @@ External services:
 - `role` — permissions within a tenant
 - `article` — canonical publishable content owned by a tenant
 - `article_translation` — language-specific article version
+- `feed` — syndication definition for RSS, Atom, or JSON Feed output
 - `location` — structured geography for content and tenants
 - `timeline_event` — temporal context for content, reports, and events
 - `seo_metadata` — search and social metadata
@@ -265,6 +290,7 @@ External services:
 - Published and updated timestamps
 - Basic SEO metadata
 - Article JSON-LD
+- Basic RSS feed
 - Basic automation events
 - Basic webhook endpoint model
 
@@ -281,6 +307,9 @@ External services:
 - XML sitemaps
 - hreflang support
 - Publisher and author schema
+- Atom feeds
+- JSON Feed
+- Tag, author, language, and location feeds
 - OpenAPI spec
 - Signed webhook delivery
 - Trigger catalog
@@ -304,6 +333,7 @@ External services:
 - Automation templates
 - Webhook replay and delivery logs
 - Fine-grained API scopes
+- Custom collection feeds
 
 ## Suggested Repository Structure
 
@@ -332,9 +362,10 @@ Build the publishing loop:
 5. Create membership records
 6. Create article records
 7. Add language, location, time, SEO, and schema metadata
-8. Add basic automation events and webhook endpoints
-9. Add a simple article editor
-10. Render public article pages with metadata and JSON-LD
+8. Add basic feed generation
+9. Add basic automation events and webhook endpoints
+10. Add a simple article editor
+11. Render public article pages with metadata and JSON-LD
 
 Success path:
 
@@ -347,8 +378,8 @@ Success path:
 ## Development Principles
 
 - Build the core loop first
-- Treat language, location, time, SEO, Schema.org, and automation as primitives
-- Expose OpenAPI, MCP, triggers, and webhooks
+- Treat language, location, time, SEO, Schema.org, feeds, and automation as primitives
+- Expose RSS, Atom, JSON Feed, OpenAPI, MCP, triggers, and webhooks
 - Let tenants connect their own automation tools
 - Do not embed n8n as a tenant-facing builder
 - Keep the backend unified
