@@ -34,7 +34,7 @@ This keeps location identity independent from internal database IDs.
 | Editor | Tiptap in React island |
 | Canvas | Fabric.js in React island |
 | Database | SurrealDB |
-| Auth | Clerk |
+| Auth | Auth.js / NextAuth |
 | Media Storage | Cloudflare R2 |
 | Analytics | PostHog |
 | Billing | Stripe |
@@ -48,6 +48,7 @@ This keeps location identity independent from internal database IDs.
 
 - `tenant` — an organization or publication
 - `user` — an authenticated person
+- `session` — authenticated session state
 - `membership` — connection between a user and tenant
 - `role` — permissions within a tenant
 - `article` — canonical publishable content owned by a tenant
@@ -73,7 +74,7 @@ Build the publishing loop:
 1. Create an Astro app
 2. Add React islands
 3. Connect SurrealDB
-4. Add Clerk auth
+4. Add Auth.js / NextAuth authentication
 5. Create tenant records
 6. Create membership records
 7. Create article records
@@ -87,6 +88,8 @@ Build the publishing loop:
 
 - Build the core loop first
 - Use Astro as the lightweight publishing-first frontend
+- Use Auth.js / NextAuth for authentication
+- Store app user, session, membership, and RBAC data in SurrealDB
 - Use React islands only for interactive tools
 - Treat language, location, time, SEO, Schema.org, feeds, canvas, and automation as primitives
 - Use Plus Codes as canonical location identities
