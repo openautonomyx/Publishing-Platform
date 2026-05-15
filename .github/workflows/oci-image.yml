@@ -37,18 +37,16 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Verify build
-        run: |
-          pnpm typecheck || true
-          pnpm build || true
+        run: pnpm build
 
       - name: Install Stacker
         run: |
           sudo apt-get update
           sudo apt-get install -y lxc uidmap skopeo umoci jq curl ca-certificates
-          curl -sL https://github.com/project-stacker/stacker/releases/latest/download/stacker -o stacker
+          curl -sL https://github.com/project-stacker/stacker/releases/download/v0.0.1/stacker -o stacker
           chmod +x stacker
-          sudo cp stacker /usr/local/bin/
-          which stacker || sudo ls -la /usr/local/bin/stacker
+          sudo mv stacker /usr/local/bin/
+          file /usr/local/bin/stacker
 
       - name: Build OCI image
         run: sudo stacker build
