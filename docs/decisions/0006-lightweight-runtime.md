@@ -1,5 +1,7 @@
 # Lightweight runtime
 
+Keep a small fixed core so the platform is trustworthy and predictable.
+
 Use k3s for lightweight ingress.
 
 Run the app as a systemd-managed Node process.
@@ -12,7 +14,9 @@ Use open standards for protocols.
 
 Avoid heavy infrastructure until needed.
 
-Every decision is reviewable.
+Fixed core choices are changed carefully.
+
+Other choices are reviewable as the platform learns.
 
 Feedback is welcome.
 
