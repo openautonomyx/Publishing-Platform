@@ -1,45 +1,110 @@
-# Multi-Tenant Routing Contract
+# Multi-Tenant CMS Routing Contract
 
-The platform should follow a stable SaaS routing contract that works in Astro now and can be mirrored in Next.js App Router later.
+This is a multi-tenant CMS and professional publishing platform, not a generic SaaS dashboard.
+
+The route contract should be CMS-first and publishing-first.
 
 ## Principle
 
 Do not couple product URLs to a framework.
 
 ```text
-Product route contract = stable
+CMS route contract = stable
 Framework implementation = replaceable
 ```
 
-## Standard Tenant Routes
+The CMS should support many tenants, but the product model is content management, editorial workflow, structured publishing, feeds, schema, and distribution.
 
-Public publishing routes:
+## Public Publishing Routes
+
+These are public reader-facing routes.
 
 ```text
 /[tenant]
-/[tenant]/articles/[slug]
+/[tenant]/[contentType]/[slug]
+/[tenant]/authors/[authorSlug]
+/[tenant]/topics/[topicSlug]
+/[tenant]/tags/[tagSlug]
+/[tenant]/locations/[locationSlug]
+/[tenant]/collections/[collectionSlug]
+/[tenant]/feeds/[feedSlug].xml
 /[tenant]/feed.xml
 /[tenant]/feed.json
 /[tenant]/sitemap.xml
 ```
 
-Publishing console routes:
+Examples:
 
 ```text
-/[tenant]/console
-/[tenant]/console/articles
-/[tenant]/console/articles/new
-/[tenant]/console/articles/[articleId]/edit
-/[tenant]/console/media
-/[tenant]/console/canvas
-/[tenant]/console/feeds
-/[tenant]/console/schema
-/[tenant]/console/locations
-/[tenant]/console/automation
-/[tenant]/console/settings
+/acme/articles/future-of-ai
+/acme/reports/state-of-education-2026
+/acme/opinions/why-cities-matter
+/acme/datasets/global-work-index
 ```
 
-Platform API routes:
+## CMS Admin Routes
+
+These are editorial and administrative routes.
+
+```text
+/[tenant]/cms
+/[tenant]/cms/content
+/[tenant]/cms/content/new
+/[tenant]/cms/content/[entryId]
+/[tenant]/cms/content/[entryId]/edit
+/[tenant]/cms/content-types
+/[tenant]/cms/content-types/[contentType]
+/[tenant]/cms/workflow
+/[tenant]/cms/revisions
+/[tenant]/cms/media
+/[tenant]/cms/canvas
+/[tenant]/cms/taxonomy
+/[tenant]/cms/authors
+/[tenant]/cms/locations
+/[tenant]/cms/schema
+/[tenant]/cms/seo
+/[tenant]/cms/feeds
+/[tenant]/cms/automation
+/[tenant]/cms/settings
+```
+
+## CMS Concepts
+
+The CMS should be centered around these primitives:
+
+- content entries
+- content types
+- editorial workflow
+- revisions
+- media library
+- canvas assets
+- taxonomy
+- authors and contributors
+- locations
+- Schema.org entities
+- SEO metadata
+- feeds
+- automation triggers
+- publishing settings
+
+## Content Types
+
+The CMS should support configurable content types backed by Schema.org-compatible semantic mappings where appropriate.
+
+Examples:
+
+```text
+article       -> Article / NewsArticle / OpinionNewsArticle
+report        -> Report / CreativeWork
+dataset       -> Dataset
+web_page      -> WebPage
+profile       -> ProfilePage / Person
+media_object  -> MediaObject / ImageObject / VideoObject / AudioObject
+```
+
+Schema.org is used for public semantic meaning, not for every internal CMS record.
+
+## Platform API Routes
 
 ```text
 /features.json
@@ -51,26 +116,38 @@ Platform API routes:
 
 ## Next.js App Router Equivalent
 
-If the console later moves to Next.js, the equivalent shape is:
+If the CMS app later moves to Next.js, mirror this product route contract:
 
 ```text
 app/
 ├── [tenant]/
 │   ├── page.tsx
-│   ├── articles/[slug]/page.tsx
+│   ├── [contentType]/[slug]/page.tsx
+│   ├── authors/[authorSlug]/page.tsx
+│   ├── topics/[topicSlug]/page.tsx
+│   ├── tags/[tagSlug]/page.tsx
+│   ├── locations/[locationSlug]/page.tsx
+│   ├── collections/[collectionSlug]/page.tsx
 │   ├── feed.xml/route.ts
 │   ├── feed.json/route.ts
 │   ├── sitemap.xml/route.ts
-│   └── console/
+│   └── cms/
 │       ├── page.tsx
-│       ├── articles/page.tsx
-│       ├── articles/new/page.tsx
-│       ├── articles/[articleId]/edit/page.tsx
+│       ├── content/page.tsx
+│       ├── content/new/page.tsx
+│       ├── content/[entryId]/page.tsx
+│       ├── content/[entryId]/edit/page.tsx
+│       ├── content-types/page.tsx
+│       ├── workflow/page.tsx
+│       ├── revisions/page.tsx
 │       ├── media/page.tsx
 │       ├── canvas/page.tsx
-│       ├── feeds/page.tsx
-│       ├── schema/page.tsx
+│       ├── taxonomy/page.tsx
+│       ├── authors/page.tsx
 │       ├── locations/page.tsx
+│       ├── schema/page.tsx
+│       ├── seo/page.tsx
+│       ├── feeds/page.tsx
 │       ├── automation/page.tsx
 │       └── settings/page.tsx
 ├── features.json/route.ts
@@ -89,20 +166,32 @@ Astro should mirror the same route contract:
 src/pages/
 ├── [tenant]/
 │   ├── index.astro
-│   ├── articles/[slug].astro
+│   ├── [contentType]/[slug].astro
+│   ├── authors/[authorSlug].astro
+│   ├── topics/[topicSlug].astro
+│   ├── tags/[tagSlug].astro
+│   ├── locations/[locationSlug].astro
+│   ├── collections/[collectionSlug].astro
 │   ├── feed.xml.ts
 │   ├── feed.json.ts
 │   ├── sitemap.xml.ts
-│   └── console/
+│   └── cms/
 │       ├── index.astro
-│       ├── articles/index.astro
-│       ├── articles/new.astro
-│       ├── articles/[articleId]/edit.astro
+│       ├── content/index.astro
+│       ├── content/new.astro
+│       ├── content/[entryId]/index.astro
+│       ├── content/[entryId]/edit.astro
+│       ├── content-types/index.astro
+│       ├── workflow.astro
+│       ├── revisions.astro
 │       ├── media.astro
 │       ├── canvas.astro
-│       ├── feeds.astro
-│       ├── schema.astro
+│       ├── taxonomy.astro
+│       ├── authors.astro
 │       ├── locations.astro
+│       ├── schema.astro
+│       ├── seo.astro
+│       ├── feeds.astro
 │       ├── automation.astro
 │       └── settings.astro
 ├── features.json.ts
@@ -124,7 +213,7 @@ custom domain -> tenant slug -> 404
 Initial MVP uses path-based tenant slugs:
 
 ```text
-/acme/console
+/acme/cms
 /acme/articles/my-post
 ```
 
@@ -132,6 +221,6 @@ Custom domains can be added later without changing internal route names.
 
 ## Rule
 
-Use the same route contract regardless of framework.
+Use CMS-first URLs, not generic SaaS-console URLs.
 
-This lets us start with Astro and later split or migrate the console to Next.js without changing product URLs.
+This lets the platform stay true to its product model while remaining framework-portable.
