@@ -9,6 +9,8 @@ export interface Thing {
   sameAs?: string[];
 }
 
+export type PlusCode = string;
+
 export interface GeoCoordinates {
   '@type': 'GeoCoordinates';
   latitude: number;
@@ -37,26 +39,97 @@ export type PlaceType =
 
 export interface Place extends Thing {
   '@type': PlaceType;
+  '@id'?: PlusCode;
   address?: PostalAddress | string;
   geo?: GeoCoordinates;
   containedInPlace?: Place;
   containsPlace?: Place | Place[];
+  identifier?: PlusCode;
 }
 
 export interface LinkedGeoObject {
-  id: string;
+  id: PlusCode;
+  plusCode: PlusCode;
   tenant?: string;
   schema: Place;
-  parent?: string;
-  ancestors?: string[];
-  children?: string[];
+  coordinates: GeoCoordinates;
+  parent?: PlusCode;
+  ancestors?: PlusCode[];
+  children?: PlusCode[];
   slug?: string;
   level?: 'continent' | 'country' | 'region' | 'state' | 'city' | 'locality' | 'venue' | 'custom';
   codes?: {
+    plusCode: PlusCode;
+    globalCode?: PlusCode;
+    compoundCode?: PlusCode;
     iso2?: string;
     iso3?: string;
     regionCode?: string;
     localCode?: string;
+  };
+  source?: 'open-location-code' | 'manual' | 'import' | 'external';
+}
+
+export function createPlaceFromPlusCode(input: {
+  plusCode: PlusCode;
+  name?: string;
+  type?: PlaceType;
+  latitude: number;
+  longitude: number;
+  description?: string;
+  address?: PostalAddress | string;
+}): Place {
+  return {
+    '@type': input.type || 'Place',
+    '@id': input.plusCode,
+    identifier: input.plusCode,
+    name: input.name,
+    description: input.description,
+    address: input.address,
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: input.latitude,
+      longitude: input.longitude,
+    },
+  };
+}
+
+export function createLinkedGeoObject(input: {
+  plusCode: PlusCode;
+  name?: string;
+  latitude: number;
+  longitude: number;
+  tenant?: string;
+  type?: PlaceType;
+  level?: LinkedGeoObject['level'];
+  parent?: PlusCode;
+  ancestors?: PlusCode[];
+  children?: PlusCode[];
+  address?: PostalAddress | string;
+}): LinkedGeoObject {
+  const schema = createPlaceFromPlusCode({
+    plusCode: input.plusCode,
+    name: input.name,
+    type: input.type,
+    latitude: input.latitude,
+    longitude: input.longitude,
+    address: input.address,
+  });
+
+  return {
+    id: input.plusCode,
+    plusCode: input.plusCode,
+    tenant: input.tenant,
+    schema,
+    coordinates: schema.geo as GeoCoordinates,
+    parent: input.parent,
+    ancestors: input.ancestors,
+    children: input.children,
+    level: input.level,
+    codes: {
+      plusCode: input.plusCode,
+    },
+    source: 'open-location-code',
   };
 }
 
