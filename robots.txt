@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://openautonomyx.github.io/Publishing-Platform/sitemap.xml
