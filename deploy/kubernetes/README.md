@@ -1,36 +1,32 @@
-# Kubernetes Deployment
+# k3s Deployment
 
-The Publishing Platform is designed to be deployment-platform neutral and Kubernetes-native.
+Default deployment target: k3s.
 
-## Components
-
-- Publishing Platform web application
-- SurrealDB
-- Cloudflare R2 (external object storage)
-- Auth.js-compatible authentication providers
-- Optional PostHog and Stripe integrations
-
-## Deployment Assets
+## Assets
 
 - `deployment.yaml`
 
-## Environment Variables
+## Use
 
-Configure application settings using Kubernetes ConfigMaps and Secrets.
+- Deployment
+- Service
+- Ingress
+- ConfigMap
+- Secret
 
-## Recommended Additions
+## Avoid For Now
 
-- Helm chart
-- Kustomize overlays
-- Horizontal Pod Autoscaler
-- Cert-Manager
-- External Secrets Operator
-- GitOps via Argo CD or Flux
+- Helm
+- service mesh
+- complex operators
+- multi-cluster setup
+- heavy observability stack
+- GitOps requirements
 
 ## Principle
 
 ```text
-Application = cloud native
-Deployment = Kubernetes native
-Infrastructure = provider neutral
+Default = k3s
+Compatible = standard Kubernetes
+Keep it lightweight
 ```
