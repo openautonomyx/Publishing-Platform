@@ -1,0 +1,20 @@
+publishing-platform:
+  from:
+    type: docker
+    url: docker://node:22-bookworm-slim
+  run: |
+    apt-get update
+    apt-get install -y --no-install-recommends ca-certificates
+    corepack enable
+    mkdir -p /app
+  build_only: false
+  import:
+    - . /app
+  run: |
+    cd /app
+    pnpm install --frozen-lockfile
+    pnpm build
+    pnpm store prune
+  entrypoint:
+    - /usr/bin/node
+    - /app/apps/web/dist/server/entry.mjs
