@@ -9,6 +9,57 @@ export interface Thing {
   sameAs?: string[];
 }
 
+export interface GeoCoordinates {
+  '@type': 'GeoCoordinates';
+  latitude: number;
+  longitude: number;
+  elevation?: number;
+}
+
+export interface PostalAddress {
+  '@type': 'PostalAddress';
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry?: string;
+}
+
+export type PlaceType =
+  | 'Place'
+  | 'Country'
+  | 'State'
+  | 'City'
+  | 'AdministrativeArea'
+  | 'Continent'
+  | 'LandmarksOrHistoricalBuildings'
+  | 'TouristAttraction';
+
+export interface Place extends Thing {
+  '@type': PlaceType;
+  address?: PostalAddress | string;
+  geo?: GeoCoordinates;
+  containedInPlace?: Place;
+  containsPlace?: Place | Place[];
+}
+
+export interface LinkedGeoObject {
+  id: string;
+  tenant?: string;
+  schema: Place;
+  parent?: string;
+  ancestors?: string[];
+  children?: string[];
+  slug?: string;
+  level?: 'continent' | 'country' | 'region' | 'state' | 'city' | 'locality' | 'venue' | 'custom';
+  codes?: {
+    iso2?: string;
+    iso3?: string;
+    regionCode?: string;
+    localCode?: string;
+  };
+}
+
 export interface Person extends Thing {
   '@type': 'Person';
   givenName?: string;
@@ -16,11 +67,16 @@ export interface Person extends Thing {
   jobTitle?: string;
   email?: string;
   affiliation?: Organization;
+  homeLocation?: Place;
+  workLocation?: Place;
 }
 
 export interface Organization extends Thing {
   '@type': 'Organization' | 'NewsMediaOrganization' | 'ResearchOrganization' | 'EducationalOrganization';
   logo?: string;
+  location?: Place;
+  address?: PostalAddress | string;
+  areaServed?: Place | Place[];
 }
 
 export type CreativeWorkType =
@@ -100,19 +156,11 @@ export interface CreativeWork extends Thing {
   mentions?: Thing | Thing[];
   spatialCoverage?: Place | Place[];
   temporalCoverage?: string;
+  contentLocation?: Place;
+  locationCreated?: Place;
   license?: string;
   copyrightHolder?: Person | Organization;
   copyrightYear?: number;
-}
-
-export interface Place extends Thing {
-  '@type': 'Place' | 'Country' | 'State' | 'City' | 'AdministrativeArea';
-  address?: string;
-  geo?: {
-    '@type': 'GeoCoordinates';
-    latitude: number;
-    longitude: number;
-  };
 }
 
 export interface Article extends CreativeWork {
