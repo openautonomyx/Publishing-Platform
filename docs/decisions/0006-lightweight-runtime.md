@@ -1,21 +1,13 @@
-# ADR 0006: Lightweight runtime
+# Lightweight runtime
 
-## Status
+Use k3s for lightweight ingress.
 
-Accepted
+Run the app as a systemd-managed Node process.
 
-## Decision
+No Docker requirement for MVP.
 
-Use a lightweight runtime architecture.
+Use CNCF projects where they help infrastructure.
 
-## Default
+Use open standards for protocols.
 
-- k3s for lightweight Kubernetes ingress
-- systemd-managed Node process for the app
-- no Docker requirement for MVP
-
-## Rule
-
-- use CNCF where it helps infrastructure
-- use open standards for protocols
-- avoid heavy infrastructure until needed
+Avoid heavy infrastructure until needed.
