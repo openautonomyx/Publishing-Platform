@@ -1,0 +1,14 @@
+[Unit]
+Description=Publishing Platform
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/publishing-platform
+ExecStart=/usr/bin/node apps/web/dist/server/entry.mjs
+Restart=always
+RestartSec=5
+EnvironmentFile=/etc/publishing-platform.env
+
+[Install]
+WantedBy=multi-user.target
