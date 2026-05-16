@@ -1,0 +1,68 @@
+{
+  "platforms": [
+    {
+      "id": "wordpress",
+      "name": "WordPress",
+      "type": "cms",
+      "outputs": ["article", "seo", "og", "tags", "category"],
+      "auth": "api-key-or-oauth",
+      "status": "connector-template"
+    },
+    {
+      "id": "medium",
+      "name": "Medium",
+      "type": "publishing",
+      "outputs": ["article", "canonical", "tags"],
+      "auth": "integration-token",
+      "status": "connector-template"
+    },
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "type": "social",
+      "outputs": ["social-post", "carousel", "image"],
+      "auth": "oauth",
+      "status": "connector-template"
+    },
+    {
+      "id": "x",
+      "name": "X / Twitter",
+      "type": "social",
+      "outputs": ["thread", "short-post", "image"],
+      "auth": "oauth",
+      "status": "connector-template"
+    },
+    {
+      "id": "substack",
+      "name": "Substack",
+      "type": "newsletter",
+      "outputs": ["newsletter", "article", "email-subject"],
+      "auth": "manual-or-rss",
+      "status": "export-template"
+    },
+    {
+      "id": "beehiiv",
+      "name": "Beehiiv",
+      "type": "newsletter",
+      "outputs": ["newsletter", "email-subject", "preview-text"],
+      "auth": "api-key",
+      "status": "connector-template"
+    },
+    {
+      "id": "ghost",
+      "name": "Ghost",
+      "type": "cms",
+      "outputs": ["article", "seo", "tags", "category"],
+      "auth": "admin-api-key",
+      "status": "connector-template"
+    },
+    {
+      "id": "github-pages",
+      "name": "GitHub Pages",
+      "type": "static-site",
+      "outputs": ["html", "markdown", "json", "assets"],
+      "auth": "git",
+      "status": "active"
+    }
+  ]
+}
