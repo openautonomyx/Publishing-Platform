@@ -1,0 +1,12 @@
+{
+  "siteName": "Publishing Platform",
+  "siteUrl": "https://openautonomyx.github.io/Publishing-Platform",
+  "defaultAuthor": "OpenAutonomyX",
+  "defaultCategory": "Publishing",
+  "defaultOgImage": "https://openautonomyx.github.io/Publishing-Platform/og-image.png",
+  "twitterCard": "summary_large_image",
+  "organization": {
+    "name": "OpenAutonomyX",
+    "url": "https://openautonomyx.github.io/Publishing-Platform"
+  }
+}
