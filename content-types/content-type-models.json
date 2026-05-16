@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "description": "Content type models for supporting all major creative work types in the Publishing Platform.",
+  "models": [
+    {
+      "id": "article",
+      "name": "Article / Blog Post",
+      "category": "writing",
+      "inputs": ["brief", "audience", "keywords", "source_material"],
+      "outputs": ["markdown", "html", "seo_meta", "schema_article", "social_snippets"],
+      "fields": ["title", "subtitle", "body", "author", "category", "tags", "canonicalUrl"]
+    },
+    {
+      "id": "newsletter",
+      "name": "Newsletter",
+      "category": "writing",
+      "inputs": ["brief", "audience", "offer", "links"],
+      "outputs": ["subject", "preview_text", "email_body", "cta", "utm_links"],
+      "fields": ["subject", "previewText", "body", "cta", "segments"]
+    },
+    {
+      "id": "social-post",
+      "name": "Social Post",
+      "category": "social",
+      "inputs": ["brief", "platform", "tone", "image"],
+      "outputs": ["caption", "hashtags", "alt_text", "platform_variants"],
+      "fields": ["caption", "hashtags", "platform", "media", "cta"]
+    },
+    {
+      "id": "thread",
+      "name": "Thread / Post Series",
+      "category": "social",
+      "inputs": ["brief", "platform", "number_of_posts"],
+      "outputs": ["posts", "hook", "cta", "hashtags"],
+      "fields": ["hook", "posts", "cta", "hashtags"]
+    },
+    {
+      "id": "carousel",
+      "name": "Carousel",
+      "category": "visual",
+      "inputs": ["brief", "slides", "brand", "image"],
+      "outputs": ["slide_copy", "layout", "image_prompts", "export_assets"],
+      "fields": ["slides", "cover", "visualStyle", "cta"]
+    },
+    {
+      "id": "cover-image",
+      "name": "Cover / OG Image",
+      "category": "visual",
+      "inputs": ["title", "subtitle", "brand", "reference_image"],
+      "outputs": ["fabric_json", "png", "alt_text", "image_prompt"],
+      "fields": ["title", "subtitle", "palette", "layout", "altText"]
+    },
+    {
+      "id": "video-script",
+      "name": "Video Script",
+      "category": "video",
+      "inputs": ["brief", "audience", "duration", "platform"],
+      "outputs": ["script", "storyboard", "shot_list", "captions", "thumbnail_prompt"],
+      "fields": ["hook", "scenes", "voiceover", "captions", "cta"]
+    },
+    {
+      "id": "podcast-script",
+      "name": "Podcast / Audio Script",
+      "category": "audio",
+      "inputs": ["brief", "host_voice", "guest_notes", "duration"],
+      "outputs": ["intro", "talking_points", "script", "show_notes", "clips"],
+      "fields": ["title", "intro", "segments", "outro", "showNotes"]
+    },
+    {
+      "id": "landing-page",
+      "name": "Landing Page",
+      "category": "web",
+      "inputs": ["offer", "audience", "proof", "cta"],
+      "outputs": ["hero", "sections", "seo_meta", "schema_webpage", "html"],
+      "fields": ["headline", "subheadline", "sections", "cta", "seo"]
+    },
+    {
+      "id": "case-study",
+      "name": "Case Study",
+      "category": "business",
+      "inputs": ["customer", "problem", "solution", "results"],
+      "outputs": ["narrative", "metrics", "quotes", "sales_summary"],
+      "fields": ["customer", "challenge", "solution", "results", "quote"]
+    },
+    {
+      "id": "whitepaper",
+      "name": "Whitepaper / Report",
+      "category": "document",
+      "inputs": ["research", "audience", "outline", "data"],
+      "outputs": ["executive_summary", "sections", "charts", "citations", "pdf_ready_copy"],
+      "fields": ["title", "abstract", "sections", "references", "appendix"]
+    },
+    {
+      "id": "presentation",
+      "name": "Presentation / Pitch Deck",
+      "category": "slides",
+      "inputs": ["brief", "audience", "goal", "brand"],
+      "outputs": ["slide_outline", "speaker_notes", "visual_prompts", "export_plan"],
+      "fields": ["slides", "speakerNotes", "visualDirection", "cta"]
+    },
+    {
+      "id": "ad-creative",
+      "name": "Ad Creative",
+      "category": "marketing",
+      "inputs": ["offer", "audience", "platform", "constraints"],
+      "outputs": ["headline_variants", "body_variants", "creative_brief", "image_prompts"],
+      "fields": ["headline", "body", "cta", "platform", "creative"]
+    },
+    {
+      "id": "interactive-experience",
+      "name": "Interactive Experience",
+      "category": "interactive",
+      "inputs": ["goal", "audience", "steps", "media"],
+      "outputs": ["experience_flow", "screens", "copy", "logic", "events"],
+      "fields": ["flow", "screens", "interactions", "events", "cta"]
+    },
+    {
+      "id": "multimodal-campaign",
+      "name": "Multimodal Campaign",
+      "category": "campaign",
+      "inputs": ["brief", "audience_segments", "languages", "platforms", "assets"],
+      "outputs": ["articles", "social", "email", "visuals", "audio", "video", "distribution_plan"],
+      "fields": ["campaignName", "segments", "formats", "languages", "channels", "assets"]
+    }
+  ]
+}
