@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A browser-based Fabric.js canvas editor for creating publishing graphics and visual assets." />
+  <title>Canvas Editor | Publishing Platform</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js" integrity="sha512-dAWLwxi4XJjvntGHLJd8tWJzlYXFbkV6zXhI0NgjxV4W3jvNwQYjGVKHzKZX0sWwQXus2kYw3lJt6z0+4tGMxQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    :root{--bg:#f8fafc;--ink:#0f172a;--muted:#475569;--line:#e2e8f0;--card:#fff;--brand:#2563eb;--accent:#14b8a6}
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+    header{padding:22px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:10}
+    a{color:var(--brand);text-decoration:none;font-weight:800}.brand{color:var(--ink)}
+    main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 73px)}
+    aside{padding:22px;border-right:1px solid var(--line);background:#fff}.panel{display:grid;gap:14px}.group{border:1px solid var(--line);border-radius:18px;padding:16px;background:var(--card)}
+    h1{font-size:1.1rem;margin:0}h2{font-size:.92rem;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    label{display:block;font-size:.86rem;font-weight:700;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font:inherit}textarea{min-height:82px;resize:vertical}
+    button{width:100%;padding:11px 14px;border:0;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer}button.secondary{background:#eef2ff;color:var(--brand)}button.danger{background:#fee2e2;color:#991b1b}button:hover{filter:brightness(.97)}
+    .stage{padding:28px;display:grid;place-items:start center;overflow:auto}.canvas-wrap{background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 24px 70px rgba(15,23,42,.10)}
+    canvas{border-radius:14px;border:1px solid var(--line)}.hint{color:var(--muted);line-height:1.55;font-size:.92rem;margin:10px 0 0}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.swatch{height:38px;padding:4px}
+    @media(max-width:900px){main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line)}.stage{padding:16px}.canvas-wrap{max-width:100%;overflow:auto}}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="../">Publishing Platform</a>
+    <a href="https://github.com/openautonomyx/Publishing-Platform">GitHub</a>
+  </header>
+  <main>
+    <aside>
+      <div class="panel">
+        <div class="group">
+          <h1>Fabric.js Canvas Editor</h1>
+          <p class="hint">Create simple cover images, announcement graphics, and post visuals directly in the browser.</p>
+        </div>
+        <div class="group">
+          <h2>Add content</h2>
+          <label for="textInput">Text</label>
+          <textarea id="textInput">Publish ideas with clarity.</textarea>
+          <button id="addText">Add text</button>
+          <div class="row">
+            <button class="secondary" id="addRect">Add card</button>
+            <button class="secondary" id="addCircle">Add circle</button>
+          </div>
+        </div>
+        <div class="group">
+          <h2>Style selected</h2>
+          <label for="fillColor">Fill / text color</label>
+          <input class="swatch" id="fillColor" type="color" value="#2563eb" />
+          <label for="fontSize">Font size</label>
+          <input id="fontSize" type="number" value="48" min="12" max="160" />
+          <button id="applyStyle">Apply style</button>
+        </div>
+        <div class="group">
+          <h2>Canvas</h2>
+          <div class="row">
+            <button class="secondary" id="bringForward">Forward</button>
+            <button class="secondary" id="sendBack">Backward</button>
+          </div>
+          <div class="row">
+            <button class="danger" id="deleteObject">Delete</button>
+            <button class="secondary" id="clearCanvas">Clear</button>
+          </div>
+          <button id="downloadPng">Download PNG</button>
+        </div>
+      </div>
+    </aside>
+    <section class="stage">
+      <div class="canvas-wrap">
+        <canvas id="canvas" width="1200" height="630"></canvas>
+        <p class="hint">Tip: click an object to move, resize, rotate, or style it. The canvas size is optimized for social previews.</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const canvas = new fabric.Canvas('canvas', { preserveObjectStacking: true });
+
+    function addBackground() {
+      const bg = new fabric.Rect({ left: 0, top: 0, width: 1200, height: 630, fill: '#f8fafc', selectable: false, evented: false });
+      canvas.add(bg);
+      canvas.sendToBack(bg);
+    }
+
+    function seedCanvas() {
+      addBackground();
+      const card = new fabric.Rect({ left: 72, top: 70, width: 1056, height: 490, rx: 34, ry: 34, fill: '#ffffff', stroke: '#e2e8f0', strokeWidth: 2 });
+      const eyebrow = new fabric.Textbox('OPENAUTONOMYX', { left: 120, top: 126, width: 900, fontSize: 28, fill: '#14b8a6', fontWeight: '800', charSpacing: 140 });
+      const title = new fabric.Textbox('Publish ideas with clarity.', { left: 120, top: 186, width: 860, fontSize: 76, lineHeight: 0.95, fill: '#0f172a', fontWeight: '800' });
+      const subtitle = new fabric.Textbox('Create essays, updates, docs, and launch notes from one beautiful publishing home.', { left: 124, top: 386, width: 760, fontSize: 34, lineHeight: 1.25, fill: '#475569' });
+      const orb = new fabric.Circle({ left: 928, top: 100, radius: 84, fill: '#2563eb', opacity: 0.92 });
+      const orb2 = new fabric.Circle({ left: 980, top: 172, radius: 54, fill: '#14b8a6', opacity: 0.88 });
+      canvas.add(card, eyebrow, title, subtitle, orb, orb2);
+      canvas.setActiveObject(title);
+      canvas.renderAll();
+    }
+
+    document.getElementById('addText').addEventListener('click', () => {
+      const value = document.getElementById('textInput').value || 'New text';
+      const text = new fabric.Textbox(value, { left: 120, top: 120, width: 640, fontSize: Number(document.getElementById('fontSize').value) || 48, fill: document.getElementById('fillColor').value, fontWeight: '800' });
+      canvas.add(text).setActiveObject(text);
+    });
+
+    document.getElementById('addRect').addEventListener('click', () => {
+      const rect = new fabric.Rect({ left: 160, top: 160, width: 360, height: 220, rx: 24, ry: 24, fill: document.getElementById('fillColor').value, opacity: 0.9 });
+      canvas.add(rect).setActiveObject(rect);
+    });
+
+    document.getElementById('addCircle').addEventListener('click', () => {
+      const circle = new fabric.Circle({ left: 220, top: 180, radius: 90, fill: document.getElementById('fillColor').value, opacity: 0.9 });
+      canvas.add(circle).setActiveObject(circle);
+    });
+
+    document.getElementById('applyStyle').addEventListener('click', () => {
+      const active = canvas.getActiveObject();
+      if (!active) return;
+      const color = document.getElementById('fillColor').value;
+      const size = Number(document.getElementById('fontSize').value) || 48;
+      active.set('fill', color);
+      if (active.type === 'textbox' || active.type === 'text') active.set('fontSize', size);
+      canvas.requestRenderAll();
+    });
+
+    document.getElementById('deleteObject').addEventListener('click', () => {
+      const active = canvas.getActiveObject();
+      if (active && active.selectable !== false) canvas.remove(active);
+    });
+
+    document.getElementById('clearCanvas').addEventListener('click', () => {
+      canvas.clear();
+      addBackground();
+    });
+
+    document.getElementById('bringForward').addEventListener('click', () => {
+      const active = canvas.getActiveObject();
+      if (active) canvas.bringForward(active);
+    });
+
+    document.getElementById('sendBack').addEventListener('click', () => {
+      const active = canvas.getActiveObject();
+      if (active) canvas.sendBackwards(active);
+    });
+
+    document.getElementById('downloadPng').addEventListener('click', () => {
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      const link = document.createElement('a');
+      link.download = 'publishing-platform-graphic.png';
+      link.href = canvas.toDataURL({ format: 'png', multiplier: 2 });
+      link.click();
+    });
+
+    seedCanvas();
+  </script>
+</body>
+</html>
