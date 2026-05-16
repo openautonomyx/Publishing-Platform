@@ -1,0 +1,36 @@
+{
+  "segments": [
+    {
+      "id": "founders",
+      "name": "Founders & Operators",
+      "description": "Startup leaders who need concise product narratives, launch assets, and investor/customer-ready publishing experiences.",
+      "signals": ["startup", "launch", "fundraising", "product-market fit", "growth"],
+      "preferredFormats": ["landing-page", "linkedin-post", "email", "og-image"],
+      "tone": "Founder-led"
+    },
+    {
+      "id": "developers",
+      "name": "Developers & Builders",
+      "description": "Technical readers who care about architecture, implementation details, APIs, changelogs, and docs.",
+      "signals": ["api", "github", "open-source", "docs", "developer tools"],
+      "preferredFormats": ["docs", "technical-blog", "changelog", "github-readme"],
+      "tone": "Technical and precise"
+    },
+    {
+      "id": "marketers",
+      "name": "Growth & Marketing Teams",
+      "description": "Teams focused on campaigns, SEO, social distribution, conversion copy, and reusable creative assets.",
+      "signals": ["seo", "campaign", "newsletter", "social", "conversion"],
+      "preferredFormats": ["newsletter", "social-carousel", "blog", "landing-page"],
+      "tone": "Clear and premium"
+    },
+    {
+      "id": "executives",
+      "name": "Executives & Decision Makers",
+      "description": "Business leaders who need strategic summaries, ROI framing, and polished executive-ready messaging.",
+      "signals": ["roi", "strategy", "enterprise", "governance", "scale"],
+      "preferredFormats": ["executive-brief", "one-pager", "email", "presentation-outline"],
+      "tone": "Clear and premium"
+    }
+  ]
+}
