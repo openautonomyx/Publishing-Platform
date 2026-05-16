@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "principle": "Human-only immersive runtime. Users may bring agent-powered tools/apps, but they cannot create or spawn autonomous agents inside the runtime.",
+  "modes": [
+    {
+      "id": "discussion-room",
+      "name": "Discussion Room",
+      "description": "A shared space for human participants to discuss a topic, capture decisions, and export notes."
+    },
+    {
+      "id": "role-play",
+      "name": "Role Play",
+      "description": "A human-led simulation where participants act through assigned roles and situations."
+    },
+    {
+      "id": "virtual-playground",
+      "name": "Virtual Playground",
+      "description": "A sandbox space for exploring concepts, layouts, campaigns, and content experiences."
+    },
+    {
+      "id": "ar-overlay",
+      "name": "AR Overlay",
+      "description": "An augmented reality layer for mapping content, notes, objects, or flows onto the real world."
+    },
+    {
+      "id": "vr-world",
+      "name": "VR World",
+      "description": "An immersive virtual world for workshops, planning, demos, rehearsals, and experience testing."
+    }
+  ],
+  "situations": [
+    "product launch workshop",
+    "editorial planning room",
+    "brand storytelling rehearsal",
+    "customer discovery role play",
+    "sales demo practice",
+    "classroom learning simulation",
+    "community town hall",
+    "executive strategy room",
+    "creative review session",
+    "campaign war room"
+  ],
+  "toolApps": [
+    {
+      "id": "writing-assistant",
+      "name": "Writing Assistant Tool",
+      "capability": "Suggests outlines, rewrites, titles, summaries, and SEO metadata on request."
+    },
+    {
+      "id": "visual-composer",
+      "name": "Visual Composer Tool",
+      "capability": "Creates canvas-ready layouts, image prompts, and visual asset briefs."
+    },
+    {
+      "id": "research-board",
+      "name": "Research Board Tool",
+      "capability": "Organizes notes, claims, citations, and discussion takeaways."
+    },
+    {
+      "id": "moderation-timer",
+      "name": "Moderator Timer Tool",
+      "capability": "Keeps sessions structured with agenda, timer, and turn prompts."
+    },
+    {
+      "id": "artifact-exporter",
+      "name": "Artifact Exporter Tool",
+      "capability": "Exports created notes, decisions, scripts, canvases, and plans to real-world content formats."
+    }
+  ],
+  "artifactTypes": [
+    "notes",
+    "transcript",
+    "decision-log",
+    "canvas-json",
+    "article-draft",
+    "social-post",
+    "video-script",
+    "audio-script",
+    "presentation-outline",
+    "experience-plan",
+    "distribution-plan"
+  ],
+  "exportTargets": [
+    "Publishing Platform post",
+    "Markdown file",
+    "HTML article",
+    "Fabric.js canvas JSON",
+    "Distribution Studio bundle",
+    "Audience Experience Studio bundle"
+  ],
+  "runtimeRestrictions": [
+    "No autonomous agent creation inside the immersive runtime.",
+    "Agent-like capabilities are exposed only as user-invoked tools or apps.",
+    "Human participants control the session, roles, artifacts, and publishing decisions.",
+    "Artifacts must be exportable to real-world files or publishing workflows."
+  ]
+}
