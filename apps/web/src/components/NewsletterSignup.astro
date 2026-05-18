@@ -1,0 +1,14 @@
+---
+const { title = 'Subscribe for updates', description = 'Get new articles and platform notes in your inbox.' } = Astro.props;
+---
+<section class="newsletter" aria-labelledby="newsletter-title">
+  <h2 id="newsletter-title">{title}</h2>
+  <p>{description}</p>
+  <form action="/api/newsletter" method="post">
+    <label>
+      Email
+      <input type="email" name="email" placeholder="you@example.com" required />
+    </label>
+    <button type="submit">Subscribe</button>
+  </form>
+</section>
