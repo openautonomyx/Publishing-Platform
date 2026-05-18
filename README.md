@@ -99,6 +99,37 @@ The initial platform model includes:
 | `mcp_tool` | AI-agent accessible platform capability |
 | `media_asset` | Uploaded images, PDFs, and files |
 
+## Current Implementation Status
+
+The repository is moving from architecture planning into executable implementation.
+
+Current state:
+
+- Workspace package scaffold exists at the repository root.
+- `feat/astro-scaffold` has been created for the first runnable web application.
+- Git object blobs have been prepared for the Astro web app package and Astro configuration.
+- The next implementation step is to finish committing the `apps/web` scaffold, then open a pull request into `main`.
+
+Pending application scaffold files:
+
+- `apps/web/package.json`
+- `apps/web/astro.config.mjs`
+- `apps/web/tsconfig.json`
+- `apps/web/tailwind.config.mjs`
+- `apps/web/src/layouts/BaseLayout.astro`
+- `apps/web/src/pages/index.astro`
+- `apps/web/src/styles/global.css`
+- `apps/web/src/lib/db.ts`
+- `apps/web/.env.example`
+
+After the scaffold lands, the repository should support:
+
+```bash
+pnpm install
+pnpm dev
+pnpm build
+```
+
 ## First Milestone
 
 The first milestone is the complete publishing loop:
@@ -179,7 +210,7 @@ The first milestone is the complete publishing loop:
 
 This project is in the early build phase.
 
-The current focus is defining the architecture, data model, platform primitives, and first publishable application loop.
+The current focus is finishing the first runnable Astro web application scaffold, then building the complete publishing loop.
 
 ## License
 
