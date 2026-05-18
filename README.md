@@ -107,7 +107,8 @@ Current state:
 
 - Workspace package scaffold exists at the repository root.
 - `feat/astro-scaffold` has been created for the first runnable web application.
-- Git object blobs have been prepared for the Astro web app package and Astro configuration.
+- The first Astro layout file has been committed on the scaffold branch.
+- Existing auth, signup, webhook, and schema work will be wired into this repository after the Astro shell is runnable.
 - The next implementation step is to finish committing the `apps/web` scaffold, then open a pull request into `main`.
 
 Pending application scaffold files:
@@ -116,7 +117,6 @@ Pending application scaffold files:
 - `apps/web/astro.config.mjs`
 - `apps/web/tsconfig.json`
 - `apps/web/tailwind.config.mjs`
-- `apps/web/src/layouts/BaseLayout.astro`
 - `apps/web/src/pages/index.astro`
 - `apps/web/src/styles/global.css`
 - `apps/web/src/lib/db.ts`
@@ -129,6 +129,19 @@ pnpm install
 pnpm dev
 pnpm build
 ```
+
+## Integration Plan
+
+After the Astro shell is in place, the next work is to wire in existing platform capabilities rather than redesign them from scratch:
+
+1. Signup and login flows
+2. Auth/session handling
+3. Tenant, user, membership, and role schema
+4. RBAC-protected admin/editor routes
+5. Signed webhooks and delivery logs
+6. Article CRUD and publishing workflow
+7. Schema.org JSON-LD and SEO metadata
+8. Feed generation
 
 ## First Milestone
 
@@ -210,7 +223,7 @@ The first milestone is the complete publishing loop:
 
 This project is in the early build phase.
 
-The current focus is finishing the first runnable Astro web application scaffold, then building the complete publishing loop.
+The current focus is finishing the first runnable Astro web application scaffold, then wiring in existing signup, auth, schema, webhook, and publishing workflow capabilities.
 
 ## License
 
