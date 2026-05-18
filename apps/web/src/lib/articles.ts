@@ -16,6 +16,24 @@ export function toSlug(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+export function sortArticlesByDate(articles: Article[]): Article[] {
+  return [...articles].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+}
+
+export function getArticleNavigation(article: Article, articles: Article[]): { previous?: Article; next?: Article } {
+  const sorted = sortArticlesByDate(articles);
+  const index = sorted.findIndex((candidate) => candidate.id === article.id);
+
+  return {
+    next: index > 0 ? sorted[index - 1] : undefined,
+    previous: index >= 0 && index < sorted.length - 1 ? sorted[index + 1] : undefined
+  };
+}
+
+export function getAuthorSlug(author: string): string {
+  return toSlug(author);
+}
+
 export function getRelatedArticles(article: Article, articles: Article[], limit = 3): Article[] {
   const tags = new Set(article.data.tags);
   const categories = new Set(article.data.categories);
