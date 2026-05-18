@@ -1,27 +1,74 @@
 -- Core SurrealDB schema for Publishing Platform.
--- Uses SurrealDB built-in functions for timestamps, ids, slugs, type checks, and defaults.
+-- Uses SurrealDB built-in functions for timestamps, ids, slugs, type checks, access control, and RBAC.
 
-DEFINE TABLE tenant SCHEMAFULL;
+DEFINE PARAM $auth;
+
+DEFINE FUNCTION fn::is_signed_in() {
+  RETURN $auth.id != NONE;
+};
+
+DEFINE FUNCTION fn::is_member($tenant: record<tenant>) {
+  RETURN count(SELECT id FROM membership WHERE tenant = $tenant AND user = $auth.id LIMIT 1) > 0;
+};
+
+DEFINE FUNCTION fn::has_role($tenant: record<tenant>, $roles: array<string>) {
+  RETURN count(
+    SELECT id
+    FROM membership
+    WHERE tenant = $tenant
+      AND user = $auth.id
+      AND role.name INSIDE $roles
+    LIMIT 1
+  ) > 0;
+};
+
+DEFINE FUNCTION fn::can_manage_tenant($tenant: record<tenant>) {
+  RETURN fn::has_role($tenant, ["owner", "admin"]);
+};
+
+DEFINE FUNCTION fn::can_edit_content($tenant: record<tenant>) {
+  RETURN fn::has_role($tenant, ["owner", "admin", "editor", "author"]);
+};
+
+DEFINE FUNCTION fn::can_publish_content($tenant: record<tenant>) {
+  RETURN fn::has_role($tenant, ["owner", "admin", "editor"]);
+};
+
+DEFINE TABLE tenant SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE fn::is_member(id)
+    FOR create WHERE fn::is_signed_in()
+    FOR update, delete WHERE fn::can_manage_tenant(id);
 DEFINE FIELD name ON tenant TYPE string ASSERT string::len($value) > 0;
 DEFINE FIELD slug ON tenant TYPE string VALUE string::slug($value OR name);
 DEFINE FIELD created_at ON tenant TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON tenant TYPE datetime VALUE time::now();
 DEFINE INDEX tenant_slug_unique ON tenant COLUMNS slug UNIQUE;
 
-DEFINE TABLE user SCHEMAFULL;
+DEFINE TABLE user SCHEMAFULL
+  PERMISSIONS
+    FOR select, update WHERE id = $auth.id
+    FOR create WHERE true
+    FOR delete WHERE id = $auth.id;
 DEFINE FIELD email ON user TYPE string ASSERT string::is::email($value);
 DEFINE FIELD name ON user TYPE option<string>;
 DEFINE FIELD created_at ON user TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON user TYPE datetime VALUE time::now();
 DEFINE INDEX user_email_unique ON user COLUMNS email UNIQUE;
 
-DEFINE TABLE role SCHEMAFULL;
+DEFINE TABLE role SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE fn::is_signed_in()
+    FOR create, update, delete WHERE false;
 DEFINE FIELD name ON role TYPE string ASSERT $value INSIDE ["owner", "admin", "editor", "author", "viewer"];
 DEFINE FIELD permissions ON role TYPE array<string> DEFAULT [];
 DEFINE FIELD created_at ON role TYPE datetime VALUE time::now();
 DEFINE INDEX role_name_unique ON role COLUMNS name UNIQUE;
 
-DEFINE TABLE membership SCHEMAFULL;
+DEFINE TABLE membership SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE user = $auth.id OR fn::can_manage_tenant(tenant)
+    FOR create, update, delete WHERE fn::can_manage_tenant(tenant);
 DEFINE FIELD tenant ON membership TYPE record<tenant>;
 DEFINE FIELD user ON membership TYPE record<user>;
 DEFINE FIELD role ON membership TYPE record<role>;
@@ -29,9 +76,16 @@ DEFINE FIELD created_at ON membership TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON membership TYPE datetime VALUE time::now();
 DEFINE INDEX membership_unique ON membership COLUMNS tenant, user UNIQUE;
 
-DEFINE TABLE article SCHEMAFULL;
+DEFINE TABLE article SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE status = "published" OR fn::is_member(tenant)
+    FOR create WHERE fn::can_edit_content(tenant)
+    FOR update WHERE fn::can_edit_content(tenant) AND (
+      status != "published" OR fn::can_publish_content(tenant)
+    )
+    FOR delete WHERE fn::can_publish_content(tenant);
 DEFINE FIELD tenant ON article TYPE record<tenant>;
-DEFINE FIELD author ON article TYPE record<user>;
+DEFINE FIELD author ON article TYPE record<user> VALUE $value OR $auth.id;
 DEFINE FIELD title ON article TYPE string ASSERT string::len($value) > 0;
 DEFINE FIELD slug ON article TYPE string VALUE string::slug($value OR title);
 DEFINE FIELD status ON article TYPE string DEFAULT "draft" ASSERT $value INSIDE ["draft", "review", "published", "archived"];
@@ -39,13 +93,16 @@ DEFINE FIELD excerpt ON article TYPE option<string>;
 DEFINE FIELD body ON article TYPE string DEFAULT "";
 DEFINE FIELD language ON article TYPE string DEFAULT "en";
 DEFINE FIELD canonical_url ON article TYPE option<string>;
-DEFINE FIELD published_at ON article TYPE option<datetime>;
+DEFINE FIELD published_at ON article TYPE option<datetime> VALUE IF status = "published" AND $before.status != "published" THEN time::now() ELSE $value END;
 DEFINE FIELD created_at ON article TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON article TYPE datetime VALUE time::now();
 DEFINE INDEX article_tenant_slug_unique ON article COLUMNS tenant, slug UNIQUE;
 DEFINE INDEX article_status_idx ON article COLUMNS status;
 
-DEFINE TABLE webhook_endpoint SCHEMAFULL;
+DEFINE TABLE webhook_endpoint SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE fn::is_member(tenant)
+    FOR create, update, delete WHERE fn::can_manage_tenant(tenant);
 DEFINE FIELD tenant ON webhook_endpoint TYPE record<tenant>;
 DEFINE FIELD url ON webhook_endpoint TYPE string ASSERT string::is::url($value);
 DEFINE FIELD secret ON webhook_endpoint TYPE string DEFAULT rand::guid();
@@ -53,14 +110,22 @@ DEFINE FIELD enabled ON webhook_endpoint TYPE bool DEFAULT true;
 DEFINE FIELD created_at ON webhook_endpoint TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON webhook_endpoint TYPE datetime VALUE time::now();
 
-DEFINE TABLE automation_event SCHEMAFULL;
+DEFINE TABLE automation_event SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE fn::is_member(tenant)
+    FOR create WHERE fn::is_member(tenant)
+    FOR update, delete WHERE false;
 DEFINE FIELD tenant ON automation_event TYPE record<tenant>;
 DEFINE FIELD event_type ON automation_event TYPE string;
 DEFINE FIELD payload ON automation_event TYPE object DEFAULT {};
 DEFINE FIELD occurred_at ON automation_event TYPE datetime VALUE time::now();
 DEFINE INDEX automation_event_type_idx ON automation_event COLUMNS event_type;
 
-DEFINE TABLE webhook_delivery SCHEMAFULL;
+DEFINE TABLE webhook_delivery SCHEMAFULL
+  PERMISSIONS
+    FOR select WHERE fn::is_member(endpoint.tenant)
+    FOR create, update WHERE fn::can_manage_tenant(endpoint.tenant)
+    FOR delete WHERE false;
 DEFINE FIELD endpoint ON webhook_delivery TYPE record<webhook_endpoint>;
 DEFINE FIELD event ON webhook_delivery TYPE record<automation_event>;
 DEFINE FIELD status ON webhook_delivery TYPE string DEFAULT "pending" ASSERT $value INSIDE ["pending", "delivered", "failed"];
@@ -69,3 +134,16 @@ DEFINE FIELD next_attempt_at ON webhook_delivery TYPE option<datetime>;
 DEFINE FIELD last_error ON webhook_delivery TYPE option<string>;
 DEFINE FIELD created_at ON webhook_delivery TYPE datetime VALUE time::now();
 DEFINE FIELD updated_at ON webhook_delivery TYPE datetime VALUE time::now();
+
+DEFINE ACCESS account ON DATABASE TYPE RECORD
+  SIGNUP (
+    CREATE user CONTENT {
+      email: string::lowercase($email),
+      name: $name,
+      created_at: time::now(),
+      updated_at: time::now()
+    }
+  )
+  SIGNIN (
+    SELECT * FROM user WHERE email = string::lowercase($email)
+  );
