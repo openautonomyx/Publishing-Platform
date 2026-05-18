@@ -1,49 +1,60 @@
-# k3s Lightweight Deployment
+# Shared Infrastructure Boundary
 
-Publishing Platform targets a lightweight OCI-first deployment model:
+This repository contains application code for the Publishing Platform.
+
+Infrastructure is shared across multiple apps and should live outside this repository.
+
+## This repo should include
+
+- Astro application code
+- React islands
+- SurrealDB schema and seed files used by this app
+- Auth, RBAC, article, feed, and webhook application logic
+- A lightweight OCI `Containerfile` for building the app image
+- Minimal runtime notes showing required environment variables and exposed port
+
+## This repo should not own
+
+- k3s cluster installation
+- Kubernetes cluster lifecycle
+- shared ingress controllers
+- shared certificate management
+- shared container registry setup
+- shared observability stack
+- shared secret manager
+- shared SurrealDB infrastructure lifecycle
+
+Those belong in the shared infrastructure bundle.
+
+## Runtime contract
+
+The application image should expose:
 
 ```text
-Containerfile -> OCI image -> k3s Deployment -> Service/Ingress
+PORT=4321
+HOST=0.0.0.0
 ```
 
-This project does not require a full multi-node Kubernetes platform to start. Use k3s for a small, production-friendly runtime.
-
-## Why k3s
-
-- Lightweight Kubernetes distribution
-- Low memory footprint
-- Works well on a single VPS or small cluster
-- Supports standard Kubernetes manifests
-- Compatible with OCI images built by Podman, Buildah, or Docker
-
-## Recommended local/edge shape
+The shared infra layer is responsible for:
 
 ```text
-k3s node
-├── publishing-platform-web Deployment
-├── publishing-platform-web Service
-├── Traefik Ingress Controller (bundled with k3s by default)
-└── external or sidecar SurrealDB, depending on environment
+image pull
+service routing
+tls
+domain mapping
+secrets injection
+persistent storage
+observability
+scaling policy
 ```
 
-## Build image
+## Recommended flow
 
-```bash
-podman build -t ghcr.io/openautonomyx/publishing-platform:latest -f Containerfile .
-podman push ghcr.io/openautonomyx/publishing-platform:latest
+```text
+Publishing-Platform repo
+  -> build OCI image
+  -> push image to registry
+  -> shared infra deploys image
 ```
 
-## Deploy
-
-```bash
-kubectl apply -k deploy/kubernetes
-```
-
-The manifests under `deploy/kubernetes` are intentionally minimal and k3s-compatible.
-
-## Production notes
-
-- Keep SurrealDB storage durable.
-- Use Kubernetes Secrets or an external secret manager for credentials.
-- Use the bundled k3s Traefik ingress for simple deployments.
-- Move to Helm only when the deployment surface grows.
+This keeps the application repository lightweight and lets one infrastructure bundle run multiple apps consistently.
