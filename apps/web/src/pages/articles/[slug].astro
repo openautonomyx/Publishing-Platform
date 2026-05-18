@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { getReadingTime, getRelatedArticles, toSlug } from '../../lib/articles';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles', ({ data }) => data.published);
@@ -11,6 +12,11 @@ export async function getStaticPaths() {
 
 const { article } = Astro.props;
 const { Content } = await render(article);
+const articles = await getCollection('articles', ({ data }) => data.published);
+const relatedArticles = getRelatedArticles(article, articles);
+const readingTime = getReadingTime(article.body ?? '');
+const canonicalUrl = new URL(`/articles/${article.data.slug}/`, Astro.site ?? Astro.url.origin).href;
+const imageUrl = article.data.coverImage ? new URL(article.data.coverImage, Astro.site ?? Astro.url.origin).href : undefined;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -23,7 +29,10 @@ const jsonLd = {
   },
   datePublished: article.data.date.toISOString(),
   keywords: article.data.tags,
-  url: Astro.url.href
+  articleSection: article.data.categories,
+  image: imageUrl,
+  mainEntityOfPage: canonicalUrl,
+  url: canonicalUrl
 };
 ---
 <html lang="en">
@@ -32,17 +41,63 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width" />
     <title>{article.data.title}</title>
     <meta name="description" content={article.data.description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={article.data.title} />
+    <meta property="og:description" content={article.data.description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {imageUrl && <meta property="og:image" content={imageUrl} />}
+    <meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={article.data.title} />
+    <meta name="twitter:description" content={article.data.description} />
+    {imageUrl && <meta name="twitter:image" content={imageUrl} />}
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
   <body>
     <main>
       <article>
-        <h1>{article.data.title}</h1>
-        <p>
-          By {article.data.author} • {article.data.date.toISOString().slice(0, 10)}
-        </p>
+        <header>
+          <p><a href="/articles/">Articles</a></p>
+          <h1>{article.data.title}</h1>
+          <p>
+            By {article.data.author} • {article.data.date.toISOString().slice(0, 10)} • {readingTime}
+          </p>
+          {article.data.tags.length > 0 && (
+            <p>
+              Tags:{' '}
+              {article.data.tags.map((tag, index) => (
+                <>
+                  <a href={`/tags/${toSlug(tag)}/`}>{tag}</a>{index < article.data.tags.length - 1 ? ', ' : ''}
+                </>
+              ))}
+            </p>
+          )}
+          {article.data.categories.length > 0 && (
+            <p>
+              Categories:{' '}
+              {article.data.categories.map((category, index) => (
+                <>
+                  <a href={`/categories/${toSlug(category)}/`}>{category}</a>{index < article.data.categories.length - 1 ? ', ' : ''}
+                </>
+              ))}
+            </p>
+          )}
+        </header>
         <Content />
       </article>
+      {relatedArticles.length > 0 && (
+        <aside>
+          <h2>Related articles</h2>
+          <ul>
+            {relatedArticles.map((related) => (
+              <li>
+                <a href={`/articles/${related.data.slug}/`}>{related.data.title}</a>
+                <p>{related.data.description}</p>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
     </main>
   </body>
 </html>
