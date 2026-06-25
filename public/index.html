@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAutonomyX - Create Once. Publish Everywhere. In Any Language.</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.98);
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    nav {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #667eea;
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .hero {
+      padding: 100px 50px;
+      text-align: center;
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      margin-bottom: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 20px;
+      margin-bottom: 30px;
+      opacity: 0.95;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-buttons button {
+      padding: 14px 40px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .primary-btn {
+      background: white;
+      color: #667eea;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .secondary-btn {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .features {
+      background: white;
+      padding: 80px 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 40px;
+    }
+
+    .feature {
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .feature h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .feature p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .pricing {
+      padding: 80px 50px;
+      background: #f8f9fa;
+    }
+
+    .pricing h2 {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 60px;
+      color: white;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .pricing-card.featured {
+      border: 3px solid #667eea;
+      transform: scale(1.05);
+    }
+
+    .pricing-card h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-size: 36px;
+      font-weight: 800;
+      color: #667eea;
+      margin: 20px 0;
+    }
+
+    .price-subtext {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .features-list {
+      text-align: left;
+      margin: 30px 0;
+      font-size: 14px;
+    }
+
+    .features-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      color: #666;
+    }
+
+    .features-list li:before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 80px 50px;
+      text-align: center;
+      color: white;
+    }
+
+    .cta-section h2 {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    .cta-section p {
+      font-size: 18px;
+      margin-bottom: 30px;
+      opacity: 0.95;
+    }
+
+    footer {
+      background: #1a1a1a;
+      color: white;
+      padding: 40px 50px;
+      text-align: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      padding: 60px 50px;
+      background: white;
+      text-align: center;
+    }
+
+    .stat h3 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .stat p {
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      nav {
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      header {
+        padding: 15px 20px;
+      }
+
+      .hero {
+        padding: 50px 20px;
+      }
+
+      .features,
+      .pricing,
+      .stats {
+        padding: 40px 20px;
+      }
+    }
+
+    .demo-video {
+      text-align: center;
+      padding: 60px 50px;
+      background: white;
+    }
+
+    .demo-video h2 {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    .demo-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .demo-video iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
+
+    .testimonials {
+      background: #f8f9fa;
+      padding: 60px 50px;
+      text-align: center;
+    }
+
+    .testimonials h2 {
+      font-size: 36px;
+      margin-bottom: 40px;
+    }
+
+    .testimonial-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .testimonial {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .testimonial p {
+      color: #666;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    .modal input,
+    .modal textarea,
+    .modal select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px 0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .modal button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .modal button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .success-message {
+      display: none;
+      background: #4caf50;
+      color: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">🚀 OpenAutonomyX</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+      <button class="cta-button" onclick="openSignup()">Get Started</button>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Create Once.<br>Publish Everywhere.<br>In Any Language.</h1>
+    <p>The AI-powered platform for creators, businesses, and agencies to reach the world instantly in 50+ languages across 6 platforms.</p>
+    <div class="hero-buttons">
+      <button class="hero-buttons button primary-btn" onclick="openSignup()">Start Free →</button>
+      <button class="hero-buttons button secondary-btn" onclick="document.getElementById('demo').scrollIntoView({behavior: 'smooth'})">Watch Demo</button>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <h3>50+</h3>
+      <p>Languages (Native)</p>
+    </div>
+    <div class="stat">
+      <h3>6</h3>
+      <p>Platforms</p>
+    </div>
+    <div class="stat">
+      <h3>100+</h3>
+      <p>Templates</p>
+    </div>
+    <div class="stat">
+      <h3>60s</h3>
+      <p>To Publish</p>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="feature">
+      <div class="feature-icon">🌍</div>
+      <h3>50+ Languages</h3>
+      <p>Native fluency in every language. Not translations—genuine native composition by AI.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📱</div>
+      <h3>6 Platforms</h3>
+      <p>Publish to Instagram, Twitter, LinkedIn, Facebook, TikTok, and YouTube simultaneously.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🤖</div>
+      <h3>AI-Powered</h3>
+      <p>Claude generates content, optimizes for SEO, and adapts tone for your audience.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <h3>Real-time Analytics</h3>
+      <p>Track engagement, reach, and performance across all channels and languages.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎨</div>
+      <h3>1,000+ Templates</h3>
+      <p>Professional designs for blogs, social, email, landing pages, and more.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">👥</div>
+      <h3>Team Collaboration</h3>
+      <p>Invite your team, set roles, and manage approvals in one place.</p>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section class="demo-video" id="demo">
+    <h2>See It In Action</h2>
+    <div class="demo-container">
+      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <h2>Loved by Creators & Businesses</h2>
+    <div class="testimonial-cards">
+      <div class="testimonial">
+        <p>"This saved me 20 hours a week. I can focus on creating instead of posting."</p>
+        <div class="testimonial-author">Sarah - YouTuber (500K followers)</div>
+      </div>
+      <div class="testimonial">
+        <p>"Reached 10x more customers internationally. Game changer for our small business."</p>
+        <div class="testimonial-author">Mike - Restaurant Owner</div>
+      </div>
+      <div class="testimonial">
+        <p>"We scaled from 2 to 20 clients. Our agencies love the white-label option."</p>
+        <div class="testimonial-author">James - Agency Owner</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <h2>Simple, Transparent Pricing</h2>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <h3>Creator</h3>
+        <div class="price">Free</div>
+        <p class="price-subtext">Forever free for creators</p>
+        <ul class="features-list">
+          <li>5 publications/month</li>
+          <li>3 languages</li>
+          <li>2 social platforms</li>
+          <li>Basic analytics</li>
+          <li>Community support</li>
+        </ul>
+        <button class="cta-button" onclick="openSignup('creator')">Get Started</button>
+      </div>
+
+      <div class="pricing-card featured">
+        <h3>Professional</h3>
+        <div class="price">$29</div>
+        <p class="price-subtext">per month, billed monthly</p>
+        <ul class="features-list">
+          <li>100 publications/month</li>
+          <li>15 languages</li>
+          <li>All 6 platforms</li>
+          <li>Advanced analytics</li>
+          <li>Priority email support</li>
+          <li>1,000+ templates</li>
+          <li>Unlimited AI generation</li>
+        </ul>
+        <button class="cta-button" onclick="openSignup('professional')">Start 14-Day Free Trial</button>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Agency</h3>
+        <div class="price">$199</div>
+        <p class="price-subtext">per month, billed monthly</p>
+        <ul class="features-list">
+          <li>Unlimited publications</li>
+          <li>50+ languages</li>
+          <li>All integrations</li>
+          <li>Team collaboration</li>
+          <li>1-hour support response</li>
+          <li>White-label option</li>
+          <li>API access</li>
+        </ul>
+        <button class="cta-button" onclick="openSignup('agency')">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2>Ready to Reach the World?</h2>
+    <p>Join creators, businesses, and agencies publishing globally every day.</p>
+    <button class="cta-button" onclick="openSignup()" style="background: white; color: #667eea;">Start Free Today →</button>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 OpenAutonomyX. All rights reserved. | <a href="#" style="color: white;">Privacy</a> | <a href="#" style="color: white;">Terms</a> | <a href="#" style="color: white;">Contact</a></p>
+    <p>📍 Powered by AI • 🚀 Built for Everyone • 🌍 Reach The World</p>
+  </footer>
+
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSignup()">&times;</span>
+      <div class="success-message" id="successMessage">
+        ✅ Signup successful! Check your email to verify.
+      </div>
+      <h2>Get Started with OpenAutonomyX</h2>
+      <form onsubmit="handleSignup(event)">
+        <input type="email" id="email" placeholder="your@email.com" required>
+        <input type="text" id="name" placeholder="Your Name" required>
+        <select id="plan">
+          <option value="creator">Creator (Free)</option>
+          <option value="professional">Professional ($29/mo)</option>
+          <option value="agency">Agency ($199/mo)</option>
+        </select>
+        <textarea id="message" placeholder="What will you create? (optional)" rows="4"></textarea>
+        <button type="submit">Create My Account</button>
+      </form>
+      <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
+        🔒 Your data is safe. We never share or sell your information.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function openSignup(plan = null) {
+      const modal = document.getElementById('signupModal');
+      modal.style.display = 'block';
+      if (plan) {
+        document.getElementById('plan').value = plan;
+      }
+      document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function closeSignup() {
+      const modal = document.getElementById('signupModal');
+      modal.style.display = 'none';
+    }
+
+    function handleSignup(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value;
+      const plan = document.getElementById('plan').value;
+      const message = document.getElementById('message').value;
+
+      // Send to backend
+      fetch('https://openautonomyx.com:3001/api/v1/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, plan, message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('email').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('message').value = '';
+        setTimeout(() => {
+          closeSignup();
+        }, 2000);
+      })
+      .catch(err => {
+        alert('Signup failed. Please try again.');
+        console.error(err);
+      });
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('signupModal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

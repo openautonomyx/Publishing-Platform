@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+.jest/
+*.test.ts
+*.spec.ts
+
+# Source
+src/
+tsconfig.json
+
+# Development
+.env
+.env.local
+.env.*.local
+
+# Build tools
+.eslintrc.json
+.prettierrc
+jest.config.js
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation
+CONTRIBUTING.md
+CHANGELOG.md
+DEVELOPMENT.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.travis.yml
+.circleci/
+.gitlab-ci.yml
+.github/workflows/
+
+# Misc
+*.log
+.cache/
+temp/
