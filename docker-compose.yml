@@ -378,6 +378,22 @@ services:
       - pp-network
     restart: unless-stopped
 
+  # Format Converter Service - EPUB, Slides, PDF, Audio, Video, HTML
+  formats:
+    build:
+      context: ./services/formats
+      dockerfile: Dockerfile
+    container_name: pp-formats
+    ports:
+      - "3011:3011"
+    environment:
+      NODE_ENV: development
+      PORT: 3011
+      SERVICE_NAME: formats
+    networks:
+      - pp-network
+    restart: unless-stopped
+
   # ==================== MONITORING & UTILITIES ====================
 
   # pgAdmin - Database management

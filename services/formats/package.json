@@ -1,0 +1,27 @@
+{
+  "name": "@publishing-platform/formats",
+  "version": "1.0.0",
+  "description": "Format-specific frontends - EPUB, Slides, PDF, Video, Audio",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "axios": "^1.6.0",
+    "uuid": "^9.0.0",
+    "cors": "^2.8.5",
+    "epub": "^1.2.0",
+    "pptxgen": "^3.12.0",
+    "markdown-it": "^13.0.0",
+    "prism-react-renderer": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "ts-node": "^10.9.0"
+  }
+}
