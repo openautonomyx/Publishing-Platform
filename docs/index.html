@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAutonomyX - Vendor-Neutral Creative Publishing Platform</title>
+  <meta name="description" content="Create once, publish everywhere. AI-powered content generation for 50+ languages and 6 social platforms.">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 80px 40px;
+      text-align: center;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    header p {
+      font-size: 20px;
+      opacity: 0.95;
+      margin-bottom: 40px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button, .btn {
+      padding: 16px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #667eea;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      padding: 80px 40px;
+      background: #1a1f35;
+    }
+
+    .feature {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .feature h3 {
+      margin-bottom: 15px;
+      color: #f1f5f9;
+      font-size: 20px;
+    }
+
+    .feature p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 60px 40px;
+      background: #0f172a;
+      text-align: center;
+    }
+
+    .stat-item h4 {
+      font-size: 32px;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .stat-item p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .services {
+      padding: 80px 40px;
+      background: #1a1f35;
+    }
+
+    .services h2 {
+      text-align: center;
+      margin-bottom: 60px;
+      font-size: 36px;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .service-card {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+
+    .service-card h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .service-card p {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    footer {
+      background: #1e293b;
+      padding: 40px;
+      text-align: center;
+      border-top: 1px solid #334155;
+      color: #94a3b8;
+    }
+
+    footer a {
+      color: #667eea;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 32px;
+      }
+
+      header p {
+        font-size: 16px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      button, .btn {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>OpenAutonomyX</h1>
+      <p>Create Once. Publish Everywhere.<br>In Any Language.</p>
+      <p style="font-size: 16px; opacity: 0.9;">
+        Vendor-neutral creative publishing platform<br>
+        powered by local AI, unlimited formats, infinite possibilities
+      </p>
+      <div class="cta-buttons">
+        <button class="btn-primary" onclick="document.getElementById('features').scrollIntoView()">
+          Get Started Free
+        </button>
+        <button class="btn-secondary" onclick="window.open('https://github.com/Open-Autonomyx/Publishing-Platform', '_blank')">
+          View on GitHub
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="features" id="features">
+    <div class="feature">
+      <h3>📝 Content Creation</h3>
+      <p>Create rich, markdown-based content with version control and publishing workflow.</p>
+    </div>
+    <div class="feature">
+      <h3>🎬 Multi-Format Export</h3>
+      <p>Generate EPUB, PDF, Slides, Audio, Video, and HTML from single content.</p>
+    </div>
+    <div class="feature">
+      <h3>🌐 Omnichannel Publishing</h3>
+      <p>Publish to WordPress, Medium, Substack, Twitter, LinkedIn, Facebook, and more.</p>
+    </div>
+    <div class="feature">
+      <h3>🤖 Local AI</h3>
+      <p>Run Ollama locally or connect to OpenAI, Anthropic, Azure, and 50+ providers.</p>
+    </div>
+    <div class="feature">
+      <h3>🔐 Vendor Neutral</h3>
+      <p>Zero lock-in. Full control. SBOM-based supply chain security.</p>
+    </div>
+    <div class="feature">
+      <h3>📊 Analytics</h3>
+      <p>Unified analytics across all platforms with real-time dashboards.</p>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat-item">
+      <h4>21</h4>
+      <p>Microservices</p>
+    </div>
+    <div class="stat-item">
+      <h4>50+</h4>
+      <p>Languages</p>
+    </div>
+    <div class="stat-item">
+      <h4>6+</h4>
+      <p>Export Formats</p>
+    </div>
+    <div class="stat-item">
+      <h4>∞</h4>
+      <p>Platforms</p>
+    </div>
+  </section>
+
+  <section class="services">
+    <div class="container">
+      <h2>All Services</h2>
+      <div class="service-grid">
+        <div class="service-card">
+          <h4>🔌 API Gateway (3000)</h4>
+          <p>Central routing, authentication, rate limiting</p>
+        </div>
+        <div class="service-card">
+          <h4>🔔 Event Bus (3001)</h4>
+          <p>Service-to-service communication, pub/sub</p>
+        </div>
+        <div class="service-card">
+          <h4>📄 Content Management (3002)</h4>
+          <p>Manage content, versions, publishing workflow</p>
+        </div>
+        <div class="service-card">
+          <h4>💡 Skills (3003)</h4>
+          <p>AI-powered skill recommendations</p>
+        </div>
+        <div class="service-card">
+          <h4>🛠️ Tools (3004)</h4>
+          <p>Integrated development tools and utilities</p>
+        </div>
+        <div class="service-card">
+          <h4>📊 Analytics (3005)</h4>
+          <p>Cross-platform analytics and insights</p>
+        </div>
+        <div class="service-card">
+          <h4>⚡ Optimization (3006)</h4>
+          <p>AI-driven content optimization engine</p>
+        </div>
+        <div class="service-card">
+          <h4>🎨 Design (3007)</h4>
+          <p>Design templates and visual generation</p>
+        </div>
+        <div class="service-card">
+          <h4>✨ Features (3008)</h4>
+          <p>Feature management and A/B testing</p>
+        </div>
+        <div class="service-card">
+          <h4>📝 Blog (3009)</h4>
+          <p>Blog management and WordPress integration</p>
+        </div>
+        <div class="service-card">
+          <h4>🔗 Integrations (3010)</h4>
+          <p>Multi-platform publishing integrations</p>
+        </div>
+        <div class="service-card">
+          <h4>🎬 Format Converter (3011)</h4>
+          <p>EPUB, PDF, Slides, Audio, Video, HTML</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 OpenAutonomyX. MIT License.</p>
+      <div style="margin-top: 20px;">
+        <a href="https://github.com/Open-Autonomyx">GitHub</a>
+        <a href="https://docs.publishing.openautonomyx.com">Documentation</a>
+        <a href="https://discord.gg/openautonomyx">Discord</a>
+        <a href="mailto:support@openautonomyx.com">Support</a>
+      </div>
+      <p style="margin-top: 20px; font-size: 12px;">
+        Built with ❤️ by Claude AI | Anthropic
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
