@@ -7,7 +7,6 @@
  */
 
 // Core exports
-export * from './client';
 export * from './types';
 export * from './services/content';
 export * from './services/publishing';

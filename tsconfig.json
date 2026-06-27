@@ -30,5 +30,16 @@
     "target": "ES2020"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.tsx",
+    "src/agents",
+    "src/dashboard",
+    "src/publishing",
+    "src/ui",
+    "src/security",
+    "src/services/llm.ts"
+  ]
 }

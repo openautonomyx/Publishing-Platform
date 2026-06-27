@@ -50,10 +50,6 @@ RUN npm ci --only=production && \
 COPY --from=builder /build/dist ./dist
 COPY --from=builder /build/public ./public
 COPY --from=builder /build/docs ./docs
-COPY --from=builder /build/sbom.* ./ || true
-
-# Copy configuration templates
-COPY config/ ./config/ || true
 
 # Copy documentation and license
 COPY README.md LICENSE CONTRIBUTORS.md ./
