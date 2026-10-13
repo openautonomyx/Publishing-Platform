@@ -108,7 +108,8 @@ jobs:
               --network creative-network \
               -e DATABASE_URL='postgres://postgres:${DB_PASSWORD}@postgres:5432/creative_platform' \
               -e REDIS_URL='redis://redis:6379' \
-              -e JWT_SECRET='${JWT_SECRET}' \
+              -e LOGTO_ENDPOINT='${{ secrets.LOGTO_ENDPOINT }}' \
+              -e LOGTO_AUDIENCE='${{ secrets.LOGTO_AUDIENCE }}' \
               -e API_LOG_LEVEL='info' \
               -e API_PORT='3001' \
               -p 3001:3001 \
@@ -258,6 +259,7 @@ secrets:
   VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
   VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  LOGTO_ENDPOINT: ${{ secrets.LOGTO_ENDPOINT }}
+  LOGTO_AUDIENCE: ${{ secrets.LOGTO_AUDIENCE }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+
+	"github.com/fractional-pm/creative-platform/logtoauth"
 )
 
 // ============================================================================
@@ -71,92 +72,31 @@ func recoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func authMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Get authorization header
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			response := APIResponse{
-				Success: false,
-				Error:   "Missing authorization header",
+// authMiddleware verifies Logto access tokens (see logtoauth.Require) and copies the
+// caller's tenant, user and role into the request context for handlers and RLS.
+func authMiddleware(verifier *logtoauth.Verifier) mux.MiddlewareFunc {
+	require := logtoauth.Require(verifier)
+	return func(next http.Handler) http.Handler {
+		return require(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			principal, _ := logtoauth.FromContext(r.Context())
+
+			ctx := context.WithValue(r.Context(), ContextKeyOrgID, principal.TenantID)
+			ctx = context.WithValue(ctx, ContextKeyUserID, principal.Subject)
+			ctx = context.WithValue(ctx, ContextKeyUserRole, principal.Role())
+
+			// Set org_id in PostgreSQL session for RLS
+			if err := setPostgreSQLOrgID(ctx, principal.TenantID); err != nil {
+				log.Printf("Failed to set PostgreSQL org_id: %v", err)
 			}
-			encodeJSON(w, response)
-			return
-		}
 
-		// Extract token from "Bearer {token}"
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			response := APIResponse{
-				Success: false,
-				Error:   "Invalid authorization format",
-			}
-			encodeJSON(w, response)
-			return
-		}
-
-		token := parts[1]
-
-		// Parse and validate JWT (basic implementation - Week 2 will enhance)
-		claims, err := validateJWT(token)
-		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			response := APIResponse{
-				Success: false,
-				Error:   fmt.Sprintf("Invalid token: %v", err),
-			}
-			encodeJSON(w, response)
-			return
-		}
-
-		// Extract claims and add to context
-		ctx := context.WithValue(r.Context(), ContextKeyOrgID, claims.OrgID)
-		ctx = context.WithValue(ctx, ContextKeyUserID, claims.UserID)
-		ctx = context.WithValue(ctx, ContextKeyUserRole, claims.Role)
-
-		// Set org_id in PostgreSQL session for RLS
-		if err := setPostgreSQLOrgID(ctx, claims.OrgID.String()); err != nil {
-			log.Printf("Failed to set PostgreSQL org_id: %v", err)
-		}
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}))
+	}
 }
 
 // ============================================================================
 // Helpers
 // ============================================================================
-
-type JWTClaims struct {
-	OrgID  uuid.UUID `json:"org_id"`
-	UserID uuid.UUID `json:"user_id"`
-	Role   string    `json:"role"`
-	Exp    int64     `json:"exp"`
-}
-
-func validateJWT(token string) (*JWTClaims, error) {
-	// PLACEHOLDER: Week 2 will implement proper JWT validation using golang-jwt/jwt
-	// For now, return dummy claims for testing
-
-	if token == "" {
-		return nil, fmt.Errorf("empty token")
-	}
-
-	// Mock validation - always succeeds in MVP
-	claims := &JWTClaims{
-		OrgID:  uuid.New(),
-		UserID: uuid.New(),
-		Role:   "admin",
-		Exp:    time.Now().Add(24 * time.Hour).Unix(),
-	}
-
-	return claims, nil
-}
 
 func setPostgreSQLOrgID(ctx context.Context, orgID string) error {
 	// PLACEHOLDER: Week 2 will implement proper session variable setting

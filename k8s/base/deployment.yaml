@@ -34,11 +34,18 @@ spec:
           value: "3001"
         - name: API_ENV
           value: production
-        - name: JWT_SECRET
+        - name: LOGTO_ENDPOINT
           valueFrom:
             secretKeyRef:
               name: api-secrets
-              key: jwt-secret
+              key: logto-endpoint
+        - name: LOGTO_AUDIENCE
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: logto-audience
+        - name: TENANT_CLAIM
+          value: tenant_id
         livenessProbe:
           httpGet:
             path: /health
