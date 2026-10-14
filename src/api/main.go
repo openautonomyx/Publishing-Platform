@@ -13,6 +13,8 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+
+	"github.com/fractional-pm/creative-platform/logtoauth"
 )
 
 const Version = "0.1.0"
@@ -34,6 +36,12 @@ func main() {
 	}
 	defer db.Close()
 
+	// Fail closed: refuse to start without a Logto issuer to verify tokens against.
+	verifier, err := logtoauth.NewVerifier(logtoauth.ConfigFromEnv(), nil)
+	if err != nil {
+		log.Fatalf("Failed to initialize auth: %v", err)
+	}
+
 	// Initialize router
 	router := mux.NewRouter()
 
@@ -48,7 +56,7 @@ func main() {
 
 	// API v1 routes
 	api := router.PathPrefix("/api/v1").Subrouter()
-	api.Use(authMiddleware)
+	api.Use(authMiddleware(verifier))
 
 	// Organizations
 	api.HandleFunc("/organizations", createOrganizationHandler).Methods("POST")

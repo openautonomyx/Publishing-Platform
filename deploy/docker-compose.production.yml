@@ -38,7 +38,11 @@ services:
       API_PORT: ${API_PORT}
       API_ENV: ${API_ENV}
       API_LOG_LEVEL: ${API_LOG_LEVEL}
-      JWT_SECRET: ${JWT_SECRET}
+      # Logto (same values as Identity Fabric); the API refuses to start without them
+      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:?set LOGTO_ENDPOINT}
+      LOGTO_AUDIENCE: ${LOGTO_AUDIENCE:?set LOGTO_AUDIENCE}
+      TENANT_CLAIM: ${TENANT_CLAIM:-tenant_id}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-}
     ports:
       - "3001:3001"
     depends_on:

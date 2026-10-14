@@ -187,18 +187,34 @@ GET    /api/v1/webhooks/test          # Test webhook
 
 ## Authentication
 
-### Headers Required
+Every `/api/v1` route requires a **Logto access token** for the API resource named by
+`LOGTO_AUDIENCE`. The middleware (`logtoauth/`) checks it against the issuer's JWKS at
+`$LOGTO_ENDPOINT/oidc/jwks`: signature (ES384, ES256 or RS256), issuer
+`$LOGTO_ENDPOINT/oidc`, audience, and expiry. It uses the same contract as Identity Fabric,
+so one Logto setup serves both services.
+
+| From the token | Used as |
+|---|---|
+| `sub` | user ID (`user_id` in the request context) |
+| `$TENANT_CLAIM` (default `tenant_id`), else `DEFAULT_TENANT_ID` | org/tenant ID; also sets the PostgreSQL RLS org |
+| highest of `publishing:admin` / `publishing:approve` / `publishing:edit` / `publishing:read` in `scope` | role: admin / approver / editor / viewer |
+
+The tenant always comes from the token. Clients cannot pick it with a header.
+
+| Response | When |
+|---|---|
+| `401` | no bearer token, or the token fails verification |
+| `403` | valid token but no tenant, or no `publishing:*` scope |
+
+**Logto setup:** create an API resource (its indicator is `LOGTO_AUDIENCE`) with the four
+`publishing:*` permissions, assign them to roles, and add a custom JWT claim `tenant_id`
+for access tokens (or set `TENANT_CLAIM=organization_id` to use Logto organizations).
+
+The API **refuses to start** if `LOGTO_ENDPOINT` or `LOGTO_AUDIENCE` is unset.
 
 ```bash
-# Authorization
-Authorization: Bearer <jwt_token>
-
-# Tenant isolation
-X-Tenant-ID: tenant-123
-
-# Optional
-X-User-ID: user-456
-X-Request-ID: unique-request-id
+Authorization: Bearer <logto_access_token>
+X-Request-ID: unique-request-id   # optional
 ```
 
 ### Example Request
@@ -206,7 +222,6 @@ X-Request-ID: unique-request-id
 ```bash
 curl -X POST http://localhost:3001/api/v1/content \
   -H "Authorization: Bearer <token>" \
-  -H "X-Tenant-ID: tenant-123" \
   -H "Content-Type: application/json" \
   -d '{
     "content_type_id": "blog-post",
@@ -276,8 +291,11 @@ JAEGER_AGENT_HOST=jaeger
 JAEGER_AGENT_PORT=6831
 PROMETHEUS_PORT=9091
 
-# Security
-JWT_SECRET=change-me-in-production
+# Security (Logto; see Authentication)
+LOGTO_ENDPOINT=https://auth.example.com
+LOGTO_AUDIENCE=https://api.publishing.example.com
+TENANT_CLAIM=tenant_id
+DEFAULT_TENANT_ID=
 TENANT_ISOLATION_LEVEL=row
 ```
 
@@ -378,9 +396,8 @@ Distributed traces sent to Jaeger at `jaeger:6831`
 
 ### Authentication
 
-- [ ] Implement proper JWT validation (currently basic)
-- [ ] Add token refresh mechanism
-- [ ] Implement token expiration
+- [x] Verify Logto access tokens (JWKS signature, issuer, audience, expiry)
+- [x] Token refresh and expiry handled by Logto (short-lived access tokens)
 - [ ] Add rate limiting per API key
 
 ### Authorization
