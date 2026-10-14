@@ -11,7 +11,6 @@ if (!TOKEN || TOKEN.length < 32) {
   console.error('PUBLISHING_API_TOKEN must be set to a random value of at least 32 characters');
   process.exit(1);
 }
-const STATUSES = ['draft', 'in_review', 'approved', 'scheduled', 'published', 'archived'];
 const ACTIONS = {submit:['draft'],approve:['in_review'],reject:['in_review'],schedule:['approved'],publish:['approved','scheduled'],archive:['draft','approved','published']};
 const timing = () => new Date().toISOString();
 function load() {
@@ -46,7 +45,7 @@ function json(req) {
     let body = '', size = 0;
     req.on('data', chunk => {
       size += chunk.length;
-      if (size > 1024 * 1024) {reject(Object.assign(new Error('Payload too large'),{status:413}));req.destroy();return;}
+      if (size > 1024 * 1024) {reject(Object.assign(new Error('Payload too large'),{status:413}));req.pause();return;}
       body += chunk;
     });
     req.on('end', () => {try {resolve(JSON.parse(body || '{}'));}catch {reject(Object.assign(new Error('Invalid JSON'),{status:400}));}});
@@ -100,7 +99,7 @@ const handler = async (req,res) => {
     if(!ACTIONS[action].includes(doc.status)) return respond(res,409,{error:'Invalid transition from '+doc.status+' via '+action});
     const input=action==='schedule' ? await json(req) : {};
     if(action==='schedule') {
-      const when=Date.parse(input.scheduledFor);
+      const when=typeof input.scheduledFor === 'string' ? Date.parse(input.scheduledFor) : NaN;
       if(!Number.isFinite(when)||when<=Date.now()) return respond(res,422,{error:'scheduledFor must be a future ISO-8601 datetime'});
       doc.scheduledFor=new Date(when).toISOString();
     }
@@ -108,7 +107,7 @@ const handler = async (req,res) => {
     if(action==='reject') doc.scheduledFor=null;
     const states={submit:'in_review',approve:'approved',reject:'draft',schedule:'scheduled',publish:'published',archive:'archived'};
     doc.status=states[action];audit(doc,action);persist();return respond(res,200,doc);
-  } catch(error) {console.error(error);respond(res,error.status||500,{error:error.status?error.message:'Internal server error'});}
+  } catch(error) {console.error(error);if (!res.headersSent && !res.destroyed) respond(res,error.status||500,{error:error.status?error.message:'Internal server error'});}
 };
 if(require.main===module) {
   const server=http.createServer(handler);
