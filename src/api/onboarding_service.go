@@ -1,3 +1,8 @@
+//go:build draft
+
+// Excluded from the default build: not routed from main.go and depends on code
+// that does not exist yet. Build with -tags draft to work on it (see README).
+
 package main
 
 import (

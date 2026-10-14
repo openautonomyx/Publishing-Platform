@@ -309,6 +309,21 @@ go test -v ./...
 go test -cover ./...
 ```
 
+### Draft files (`-tags draft`)
+
+These files are excluded from the default build with `//go:build draft`. None of them
+is routed from `main.go`, and each depends on code that doesn't exist yet:
+
+| File | Missing |
+|---|---|
+| `deployment_service.go` | `Database` type. Also conflicts with `deployment_tracking.go`: both define `Deployment`, `DeploymentPhase`, `DeploymentStatus` and the same `/api/v1/deployments` routes, so pick one design |
+| `deployment_tracking.go`, `deployment_handlers.go` | `Database` type; the `deployment_service.go` conflict above |
+| `onboarding_service.go` | `LiferayClient.CreateOrganization/CreateSite/CreateUser`, `sendWelcomeEmail`, `sendSetupCompleteEmail` |
+| `workflows_approval.go` | `RecordAuditLog`, `AuditLogEntry` |
+
+To finish one, remove its build tag and make `go build ./...` pass.
+`go build -tags draft ./...` shows what's still missing.
+
 ### Code Organization
 
 - **Handlers** — HTTP request/response handling (api-handlers.go)

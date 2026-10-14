@@ -105,17 +105,6 @@ func setPostgreSQLOrgID(ctx context.Context, orgID string) error {
 }
 
 // ============================================================================
-// Rate Limiting (to be implemented in Week 2)
-// ============================================================================
-
-func rateLimitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// PLACEHOLDER: Week 2 will implement proper rate limiting
-		next.ServeHTTP(w, r)
-	})
-}
-
-// ============================================================================
 // Request/Response Interceptors
 // ============================================================================
 

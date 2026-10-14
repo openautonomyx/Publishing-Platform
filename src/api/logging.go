@@ -156,32 +156,6 @@ func logPanic(message string, stack interface{}) {
 var timeNow = time.Now
 
 // ============================================================================
-// Middleware Logging Wrapper
-// ============================================================================
-
-type LoggedResponseWriter struct {
-	statusCode int
-	written    bool
-}
-
-func (lw *LoggedResponseWriter) WriteHeader(code int) {
-	if !lw.written {
-		lw.statusCode = code
-		lw.written = true
-	}
-}
-
-func (lw *LoggedResponseWriter) Write(b []byte) (int, error) {
-	if !lw.written {
-		lw.statusCode = 200
-		lw.written = true
-	}
-	return len(b), nil
-}
-
-func (lw *LoggedResponseWriter) Header() {}
-
-// ============================================================================
 // Audit Logging
 // ============================================================================
 

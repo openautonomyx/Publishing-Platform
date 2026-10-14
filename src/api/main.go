@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -171,7 +172,6 @@ func loadConfig() Config {
 		DatabaseURL: getEnv("DATABASE_URL", "postgresql://dev:dev@localhost:5432/creative_platform"),
 		Port:        getEnv("API_PORT", "3001"),
 		Env:         getEnv("API_ENV", "development"),
-		JWTSecret:   getEnv("JWT_SECRET", "dev-secret-key-change-in-prod"),
 	}
 }
 
@@ -186,7 +186,6 @@ type Config struct {
 	DatabaseURL string
 	Port        string
 	Env         string
-	JWTSecret   string
 }
 
 // ============================================================================
@@ -365,12 +364,19 @@ func handlerStub(w http.ResponseWriter, action string, status int) {
 
 func encodeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := jsonEncoder(w).Encode(v); err != nil {
+	if err := json.NewEncoder(w).Encode(v); err != nil {
 		log.Printf("JSON encoding error: %v", err)
 	}
 }
 
-func jsonEncoder(w http.ResponseWriter) interface{} {
-	// Placeholder - will use encoding/json in full implementation
-	return nil
+// respondJSON writes v as the JSON response body with the given status.
+func respondJSON(w http.ResponseWriter, status int, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	encodeJSON(w, v)
+}
+
+// respondError writes the API's standard error envelope.
+func respondError(w http.ResponseWriter, status int, msg string) {
+	respondJSON(w, status, APIResponse{Success: false, Error: msg})
 }

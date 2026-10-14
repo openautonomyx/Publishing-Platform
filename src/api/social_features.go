@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -324,7 +323,6 @@ func GetArticleReactions(w http.ResponseWriter, r *http.Request) {
 func ReactToComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commentID := vars["id"]
-	userID := r.Header.Get("X-User-ID")
 
 	var req struct {
 		Type string `json:"type"`

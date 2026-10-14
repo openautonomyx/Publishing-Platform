@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql/driver"
 	"encoding/json"
 	"time"
 
@@ -287,19 +286,3 @@ const (
 	ContextKeyUserRole contextKey = "user_role"
 )
 
-// ============================================================================
-// JSON encoding for JSONB types
-// ============================================================================
-
-func (m json.RawMessage) Value() (driver.Value, error) {
-	return []byte(m), nil
-}
-
-func (m *json.RawMessage) Scan(value interface{}) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return nil
-	}
-	*m = json.RawMessage(bytes)
-	return nil
-}
