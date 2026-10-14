@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import './Pages.css';
 
 type Status = 'draft'|'in_review'|'approved'|'scheduled'|'published'|'archived';
@@ -11,7 +11,7 @@ async function request(endpoint:string, token:string, method='GET', body?:object
   if(!response.ok) throw new Error(data.error||'Request failed');
   return data;
 }
-export default function ContentPage({onContextChange}:Props) {
+export default function ContentPage(_props:Props) {
   const [token,setToken]=useState('');
   const [items,setItems]=useState<Publication[]>([]);
   const [selected,setSelected]=useState<string|null>(null);
@@ -25,7 +25,6 @@ export default function ContentPage({onContextChange}:Props) {
     try {const data=await request(API,token);setItems(data.items);setError('');}
     catch(e) {setError((e as Error).message);}
   },[token]);
-  useEffect(()=>{onContextChange('content',{});},[]);
   useEffect(()=>{refresh();},[refresh]);
   const current=items.find(x=>x.id===selected);
   const choose=(item?:Publication)=>{

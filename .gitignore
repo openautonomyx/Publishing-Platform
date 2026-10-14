@@ -38,3 +38,7 @@ coverage/
 .cache/
 temp/
 *.tmp
+
+# Unpublished workspace content (local persistent state)
+/data/
+/workspace-api/data/
