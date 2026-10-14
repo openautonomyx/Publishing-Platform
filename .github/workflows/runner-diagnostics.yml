@@ -1,0 +1,28 @@
+name: Runner Diagnostics
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/runner-diagnostics.yml'
+permissions:
+  contents: read
+jobs:
+  basic:
+    name: Hosted runner and Node smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirm runner is available
+        run: |
+          echo "GitHub hosted runner available"
+          uname -a
+      - uses: actions/checkout@v4
+      - name: Show Node version
+        run: node --version
+      - name: Test editorial API
+        run: node --test workspace-api/server.test.cjs
+      - name: Check Compose file
+        run: |
+          docker compose -f compose.workspace.yml config --quiet
+        env:
+          PUBLISHING_API_TOKEN: local-ci-only-placeholder-token-please-do-not-use
