@@ -4,7 +4,7 @@ import Navigation from './components/Navigation';
 import RightPanel from './components/RightPanel';
 import HomePage from './pages/HomePage';
 import BlogPage from './pages/BlogPage';
-import ContentPage from './pages/ContentPage';
+import ContentPage from './pages/EditorialWorkspace';
 import IntegrationsPage from './pages/IntegrationsPage';
 import FormatsPage from './pages/FormatsPage';
 import AdminPage from './pages/AdminPage';
