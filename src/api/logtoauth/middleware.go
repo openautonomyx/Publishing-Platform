@@ -16,31 +16,41 @@ func FromContext(ctx context.Context) (*Principal, bool) {
 	return p, ok
 }
 
+// ErrorWriter writes an authentication (401) or authorization (403) failure.
+type ErrorWriter func(w http.ResponseWriter, r *http.Request, status int, msg string)
+
 // Require rejects requests without a valid Logto bearer token, a tenant, and at least
-// one publishing:* scope. Errors use the API's {"success":false,"error":"…"} shape and
-// never echo verification details back to the caller.
+// one publishing:* scope. Errors use a {"success":false,"error":"…"} body and never
+// echo verification details back to the caller.
 func Require(v *Verifier) func(http.Handler) http.Handler {
+	return RequireWith(v, func(w http.ResponseWriter, _ *http.Request, status int, msg string) {
+		writeError(w, status, msg)
+	})
+}
+
+// RequireWith is Require with a caller-supplied error format.
+func RequireWith(v *Verifier, writeErr ErrorWriter) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			scheme, token, ok := strings.Cut(r.Header.Get("Authorization"), " ")
 			token = strings.TrimSpace(token)
 			if !ok || !strings.EqualFold(scheme, "Bearer") || token == "" {
-				writeError(w, http.StatusUnauthorized, "Missing or malformed bearer token")
+				writeErr(w, r, http.StatusUnauthorized, "Missing or malformed bearer token")
 				return
 			}
 
 			p, err := v.Verify(r.Context(), token)
 			if err != nil {
 				log.Printf("auth rejected: %v", err)
-				writeError(w, http.StatusUnauthorized, "Invalid token")
+				writeErr(w, r, http.StatusUnauthorized, "Invalid token")
 				return
 			}
 			if p.TenantID == "" {
-				writeError(w, http.StatusForbidden, "Token carries no tenant and DEFAULT_TENANT_ID is not set")
+				writeErr(w, r, http.StatusForbidden, "Token carries no tenant and DEFAULT_TENANT_ID is not set")
 				return
 			}
 			if p.Role() == "" {
-				writeError(w, http.StatusForbidden, "Token has no publishing:* scope")
+				writeErr(w, r, http.StatusForbidden, "Token has no publishing:* scope")
 				return
 			}
 
