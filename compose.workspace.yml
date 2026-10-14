@@ -1,0 +1,26 @@
+# Single-operator evaluation stack. Set PUBLISHING_API_TOKEN in your environment.
+services:
+  workspace-api:
+    build:
+      context: ./workspace-api
+    environment:
+      PORT: "3000"
+      PUBLISHING_DATA_FILE: /data/publications.json
+      PUBLISHING_API_TOKEN: "${PUBLISHING_API_TOKEN:?Set a strong publishing token}"
+    volumes:
+      - publishing_content:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.workspace
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - workspace-api
+    restart: unless-stopped
+volumes:
+  publishing_content:
