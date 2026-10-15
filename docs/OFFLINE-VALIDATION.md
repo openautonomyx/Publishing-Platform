@@ -16,7 +16,7 @@ To additionally build and smoke-test the actual Caddy + Node containers, with Do
 RUN_DOCKER_SMOKE=1 bash scripts/validate-workspace.sh
 ```
 
-The smoke test uses localhost port 8080 and temporarily starts the evaluation stack. It stops the stack on exit but leaves the named data volume untouched. Don't run this against a production deployment. It does not make external social-platform API calls.
+The smoke test requires Docker Compose (otherwise the script exits nonzero), checks the API health endpoint, verifies that unauthenticated publishing access is denied with HTTP 401, and confirms a token-authorized list response. The smoke test uses localhost port 8080 and temporarily starts the evaluation stack. It stops the stack on exit but leaves the named data volume untouched. Don't run this against a production deployment. It does not make external social-platform API calls.
 
 ## Evidence required before release
 
