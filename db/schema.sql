@@ -4,7 +4,6 @@
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "json";
 
 -- ============================================================================
 -- Organizations (Tenants)
@@ -14,14 +13,15 @@ CREATE TABLE organizations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
+    external_id VARCHAR(255) UNIQUE, -- tenant claim from the identity provider (Logto)
     description TEXT,
     tier VARCHAR(50) DEFAULT 'free', -- free, pro, enterprise
     status VARCHAR(50) DEFAULT 'active', -- active, suspended, deleted
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     created_by UUID,
-    deleted_at TIMESTAMP NULL
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX idx_organizations_slug ON organizations(slug);
@@ -34,17 +34,18 @@ CREATE INDEX idx_organizations_status ON organizations(status);
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-    email VARCHAR(255) NOT NULL,
+    external_id VARCHAR(255), -- Logto user ID (token sub); NULL until an invited user signs in
+    email VARCHAR(255), -- NULL when the identity provider does not share it
     name VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255),
     avatar_url TEXT,
-    role VARCHAR(50) DEFAULT 'user', -- admin, editor, viewer, user
-    status VARCHAR(50) DEFAULT 'active', -- active, inactive, deleted
-    last_login_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL,
-    UNIQUE(org_id, email)
+    role VARCHAR(50) DEFAULT 'viewer', -- admin, approver, editor, viewer (mirrors the last token seen)
+    status VARCHAR(50) DEFAULT 'active', -- invited, active, inactive
+    last_login_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL,
+    UNIQUE(org_id, email),
+    UNIQUE(org_id, external_id)
 );
 
 CREATE INDEX idx_users_org_id ON users(org_id);
@@ -59,14 +60,15 @@ CREATE TABLE api_keys (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    key_hash VARCHAR(255) NOT NULL UNIQUE,
+    key_hash VARCHAR(255) NOT NULL UNIQUE, -- SHA-256 of the key; the key itself is shown once
+    key_prefix VARCHAR(16) NOT NULL, -- first characters, to recognise a key in listings
     name VARCHAR(255),
-    permissions TEXT[] DEFAULT ARRAY['read', 'write'],
+    permissions TEXT[] DEFAULT ARRAY['read'], -- read, write, approve, admin
     status VARCHAR(50) DEFAULT 'active', -- active, revoked
-    last_used_at TIMESTAMP,
-    expires_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
+    last_used_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX idx_api_keys_org_id ON api_keys(org_id);
@@ -86,9 +88,9 @@ CREATE TABLE workflows (
     status VARCHAR(50) DEFAULT 'draft', -- draft, active, archived, deleted
     config JSONB NOT NULL DEFAULT '{}', -- workflow-specific configuration
     created_by UUID NOT NULL REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX idx_workflows_org_id ON workflows(org_id);
@@ -108,8 +110,8 @@ CREATE TABLE approval_stages (
     required_count INT DEFAULT 1,
     timeout_hours INT DEFAULT 48,
     status VARCHAR(50) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_approval_stages_workflow_id ON approval_stages(workflow_id);
@@ -129,10 +131,11 @@ CREATE TABLE content (
     status VARCHAR(50) DEFAULT 'draft', -- draft, in-review, approved, published, archived
     metadata JSONB DEFAULT '{}', -- type-specific metadata
     created_by UUID NOT NULL REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    published_at TIMESTAMP,
-    deleted_at TIMESTAMP NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    submitted_at TIMESTAMPTZ, -- start of the current review round (set on draft -> in-review)
+    published_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX idx_content_org_id ON content(org_id);
@@ -152,8 +155,8 @@ CREATE TABLE approvals (
     approver_id UUID NOT NULL REFERENCES users(id),
     decision VARCHAR(50) NOT NULL, -- approved, rejected, requested-changes
     comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_approvals_content_id ON approvals(content_id);
@@ -173,12 +176,12 @@ CREATE TABLE agents (
     description TEXT,
     config JSONB NOT NULL DEFAULT '{}', -- agent-specific configuration
     status VARCHAR(50) DEFAULT 'active', -- active, paused, error, deleted
-    last_run_at TIMESTAMP,
+    last_run_at TIMESTAMPTZ,
     error_message TEXT,
     created_by UUID NOT NULL REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX idx_agents_org_id ON agents(org_id);
@@ -193,13 +196,13 @@ CREATE TABLE agent_runs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
     content_id UUID REFERENCES content(id) ON DELETE SET NULL,
-    status VARCHAR(50) NOT NULL, -- running, success, failed, timeout
+    status VARCHAR(50) NOT NULL, -- queued, running, success, failed, timeout
     input_data JSONB DEFAULT '{}',
     output_data JSONB DEFAULT '{}',
     error_message TEXT,
     duration_ms INT,
-    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP
+    started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMPTZ
 );
 
 CREATE INDEX idx_agent_runs_agent_id ON agent_runs(agent_id);
@@ -217,11 +220,12 @@ CREATE TABLE distributions (
     content_id UUID NOT NULL REFERENCES content(id) ON DELETE CASCADE,
     channel VARCHAR(100) NOT NULL, -- twitter, linkedin, medium, substack, website
     status VARCHAR(50) DEFAULT 'pending', -- pending, published, failed, scheduled
+    scheduled_at TIMESTAMPTZ,
     published_url TEXT,
-    published_at TIMESTAMP,
+    published_at TIMESTAMPTZ,
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_distributions_org_id ON distributions(org_id);
@@ -243,7 +247,7 @@ CREATE TABLE audit_logs (
     changes JSONB DEFAULT '{}',
     ip_address INET,
     user_agent TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_audit_logs_org_id ON audit_logs(org_id);
@@ -267,23 +271,27 @@ ALTER TABLE agent_runs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE distributions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
+-- Tenant isolation is enforced by the API in every query (org_id = caller's org).
+-- The API connects as the table owner, which bypasses these policies, so they only
+-- apply to other, non-owner roles. See src/api/API-SERVER-README.md.
+
 -- RLS Policies for organizations (super users only)
 CREATE POLICY org_isolation ON organizations
     USING (TRUE); -- Admin-only in application layer
 
 -- RLS Policies for users
 CREATE POLICY user_org_isolation ON users
-    USING (org_id = CURRENT_SETTING('app.current_org_id')::UUID);
+    USING (org_id = NULLIF(CURRENT_SETTING('app.current_org_id', TRUE), '')::UUID);
 
 CREATE POLICY user_insert ON users
-    WITH CHECK (org_id = CURRENT_SETTING('app.current_org_id')::UUID);
+    WITH CHECK (org_id = NULLIF(CURRENT_SETTING('app.current_org_id', TRUE), '')::UUID);
 
 -- RLS Policies for content
 CREATE POLICY content_org_isolation ON content
-    USING (org_id = CURRENT_SETTING('app.current_org_id')::UUID);
+    USING (org_id = NULLIF(CURRENT_SETTING('app.current_org_id', TRUE), '')::UUID);
 
 CREATE POLICY content_insert ON content
-    WITH CHECK (org_id = CURRENT_SETTING('app.current_org_id')::UUID);
+    WITH CHECK (org_id = NULLIF(CURRENT_SETTING('app.current_org_id', TRUE), '')::UUID);
 
 -- ============================================================================
 -- Functions

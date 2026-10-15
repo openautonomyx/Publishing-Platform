@@ -49,7 +49,6 @@ func initLogger() {
 		os.Exit(1)
 	}
 
-	defer zapLogger.Sync()
 	logger = zapLogger.Sugar()
 }
 
@@ -82,59 +81,9 @@ func logRequest(method, path string, statusCode int, duration time.Duration, req
 	)
 }
 
-func logError(message string, err error, requestID string) {
-	if appErr, ok := IsAppError(err); ok {
-		logger.Errorw(message,
-			"error_code", appErr.Code,
-			"error_message", appErr.Message,
-			"status_code", appErr.StatusCode,
-			"request_id", requestID,
-		)
-	} else {
-		logger.Errorw(message,
-			"error", err.Error(),
-			"request_id", requestID,
-		)
-	}
-}
-
-func logDatabaseOperation(operation string, table string, duration time.Duration) {
-	logger.Debugw("database_operation",
-		"operation", operation,
-		"table", table,
-		"duration_ms", duration.Milliseconds(),
-	)
-}
-
-func logServiceCall(service string, method string, duration time.Duration, success bool) {
-	logger.Debugw("service_call",
-		"service", service,
-		"method", method,
-		"duration_ms", duration.Milliseconds(),
-		"success", success,
-	)
-}
-
 // ============================================================================
 // Structured Logging Helpers
 // ============================================================================
-
-func logAuthAttempt(userID, orgID string, success bool) {
-	logger.Infow("auth_attempt",
-		"user_id", userID,
-		"org_id", orgID,
-		"success", success,
-	)
-}
-
-func logDataAccess(userID, orgID string, resourceType string, action string) {
-	logger.Infow("data_access",
-		"user_id", userID,
-		"org_id", orgID,
-		"resource_type", resourceType,
-		"action", action,
-	)
-}
 
 func logRateLimitExceeded(clientIP string) {
 	logger.Warnw("rate_limit_exceeded",
@@ -156,43 +105,5 @@ func logPanic(message string, stack interface{}) {
 var timeNow = time.Now
 
 // ============================================================================
-// Middleware Logging Wrapper
-// ============================================================================
-
-type LoggedResponseWriter struct {
-	statusCode int
-	written    bool
-}
-
-func (lw *LoggedResponseWriter) WriteHeader(code int) {
-	if !lw.written {
-		lw.statusCode = code
-		lw.written = true
-	}
-}
-
-func (lw *LoggedResponseWriter) Write(b []byte) (int, error) {
-	if !lw.written {
-		lw.statusCode = 200
-		lw.written = true
-	}
-	return len(b), nil
-}
-
-func (lw *LoggedResponseWriter) Header() {}
-
-// ============================================================================
 // Audit Logging
 // ============================================================================
-
-func logAuditEvent(userID, orgID, action, resourceType string, resourceID interface{}, changes interface{}) {
-	logger.Infow("audit_event",
-		"user_id", userID,
-		"org_id", orgID,
-		"action", action,
-		"resource_type", resourceType,
-		"resource_id", resourceID,
-		"changes", changes,
-		"timestamp", timeNow().UTC().Format("2006-01-02T15:04:05Z07:00"),
-	)
-}

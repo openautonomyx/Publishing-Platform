@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net"
-	"net/http"
 	"sync"
 	"time"
 )
@@ -52,9 +50,9 @@ func (rl *RateLimiter) IsAllowed(clientIP string) bool {
 
 	bucket, exists := rl.clients[clientIP]
 	if !exists {
-		// New client: start with burst capacity
+		// New client: start with burst capacity, minus this request's token
 		rl.clients[clientIP] = &ClientBucket{
-			tokens:    float64(rl.burstSize),
+			tokens:    float64(rl.burstSize) - 1,
 			lastCheck: time.Now(),
 		}
 		return true
@@ -101,66 +99,6 @@ func (rl *RateLimiter) Stop() {
 	if rl.cleanupTicker != nil {
 		rl.cleanupTicker.Stop()
 	}
-}
-
-// ============================================================================
-// Middleware
-// ============================================================================
-
-var globalRateLimiter *RateLimiter
-
-func initRateLimiter() {
-	requestsPerSecond := 100   // Default: 100 requests/second
-	burstSize := 200           // Default: burst of 200
-
-	// Can be configured via environment
-	globalRateLimiter = NewRateLimiter(requestsPerSecond, burstSize)
-}
-
-func rateLimitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		clientIP := getClientIP(r)
-
-		if !globalRateLimiter.IsAllowed(clientIP) {
-			logRateLimitExceeded(clientIP)
-			appErr := NewTooManyRequestsError()
-			requestID := r.Context().Value("request_id").(string)
-			writeError(w, appErr, requestID)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-func getClientIP(r *http.Request) string {
-	// Check X-Forwarded-For header (proxy)
-	if forwardedFor := r.Header.Get("X-Forwarded-For"); forwardedFor != "" {
-		ips := net.ParseIP(forwardedFor)
-		if ips != nil {
-			return forwardedFor
-		}
-	}
-
-	// Check X-Real-IP header
-	if realIP := r.Header.Get("X-Real-IP"); realIP != "" {
-		ips := net.ParseIP(realIP)
-		if ips != nil {
-			return realIP
-		}
-	}
-
-	// Fall back to RemoteAddr
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-
-	return host
 }
 
 func min(a, b float64) float64 {

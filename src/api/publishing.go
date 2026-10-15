@@ -1,3 +1,9 @@
+//go:build draft
+
+// Excluded from the default build: not routed from main.go, reads the caller from the
+// client-supplied X-User-ID header, and its tables exist only in
+// db/migrations/010_create_publishing_tables.sql. Build with -tags draft (see README).
+
 package main
 
 import (

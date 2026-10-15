@@ -55,6 +55,8 @@ type Principal struct {
 	Subject  string // Logto user ID (or M2M app ID for client-credentials tokens)
 	ClientID string
 	TenantID string
+	Email    string // optional "email" claim (a Logto custom JWT claim)
+	Name     string // optional "name" claim
 	Scopes   map[string]bool
 }
 
@@ -122,6 +124,8 @@ func (v *Verifier) Verify(ctx context.Context, token string) (*Principal, error)
 	}
 	p := &Principal{Subject: sub, Scopes: map[string]bool{}}
 	p.ClientID, _ = claims["client_id"].(string)
+	p.Email, _ = claims["email"].(string)
+	p.Name, _ = claims["name"].(string)
 	if scope, ok := claims["scope"].(string); ok {
 		for _, s := range strings.Fields(scope) {
 			p.Scopes[s] = true

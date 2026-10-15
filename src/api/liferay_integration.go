@@ -1,3 +1,8 @@
+//go:build draft
+
+// Excluded from the default build: only onboarding_service.go (also a draft) uses this
+// client. Build with -tags draft (see README).
+
 package main
 
 import (

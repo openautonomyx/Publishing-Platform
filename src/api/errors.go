@@ -13,25 +13,25 @@ import (
 type ErrorCode string
 
 const (
-	ErrorCodeBadRequest       ErrorCode = "BAD_REQUEST"
-	ErrorCodeUnauthorized     ErrorCode = "UNAUTHORIZED"
-	ErrorCodeForbidden        ErrorCode = "FORBIDDEN"
-	ErrorCodeNotFound         ErrorCode = "NOT_FOUND"
-	ErrorCodeConflict         ErrorCode = "CONFLICT"
-	ErrorCodeValidation       ErrorCode = "VALIDATION_ERROR"
-	ErrorCodeInternalError    ErrorCode = "INTERNAL_ERROR"
-	ErrorCodeServiceUnavail   ErrorCode = "SERVICE_UNAVAILABLE"
-	ErrorCodeTooManyRequests  ErrorCode = "TOO_MANY_REQUESTS"
+	ErrorCodeBadRequest      ErrorCode = "BAD_REQUEST"
+	ErrorCodeUnauthorized    ErrorCode = "UNAUTHORIZED"
+	ErrorCodeForbidden       ErrorCode = "FORBIDDEN"
+	ErrorCodeNotFound        ErrorCode = "NOT_FOUND"
+	ErrorCodeConflict        ErrorCode = "CONFLICT"
+	ErrorCodeValidation      ErrorCode = "VALIDATION_ERROR"
+	ErrorCodeInternalError   ErrorCode = "INTERNAL_ERROR"
+	ErrorCodeServiceUnavail  ErrorCode = "SERVICE_UNAVAILABLE"
+	ErrorCodeTooManyRequests ErrorCode = "TOO_MANY_REQUESTS"
 )
 
 // AppError represents an application error with structured details
 type AppError struct {
-	Code       ErrorCode   `json:"code"`
-	Message    string      `json:"message"`
-	Details    []string    `json:"details,omitempty"`
-	RequestID  string      `json:"request_id,omitempty"`
-	StatusCode int         `json:"status_code"`
-	Timestamp  string      `json:"timestamp"`
+	Code       ErrorCode `json:"code"`
+	Message    string    `json:"message"`
+	Details    []string  `json:"details,omitempty"`
+	RequestID  string    `json:"request_id,omitempty"`
+	StatusCode int       `json:"status_code"`
+	Timestamp  string    `json:"timestamp"`
 }
 
 func (e *AppError) Error() string {
@@ -91,11 +91,11 @@ func NewConflictError(message string) *AppError {
 	}
 }
 
-func NewInternalError(err error) *AppError {
+// NewInternalError hides the cause from the caller; log it before returning this.
+func NewInternalError() *AppError {
 	return &AppError{
 		Code:       ErrorCodeInternalError,
 		Message:    "internal server error",
-		Details:    []string{err.Error()},
 		StatusCode: http.StatusInternalServerError,
 	}
 }
@@ -121,12 +121,12 @@ func NewTooManyRequestsError() *AppError {
 // ============================================================================
 
 type ErrorResponse struct {
-	Success   bool        `json:"success"`
-	Error     ErrorCode   `json:"error"`
-	Message   string      `json:"message"`
-	Details   []string    `json:"details,omitempty"`
-	RequestID string      `json:"request_id,omitempty"`
-	Timestamp string      `json:"timestamp"`
+	Success   bool      `json:"success"`
+	Error     ErrorCode `json:"error"`
+	Message   string    `json:"message"`
+	Details   []string  `json:"details,omitempty"`
+	RequestID string    `json:"request_id,omitempty"`
+	Timestamp string    `json:"timestamp"`
 }
 
 func NewErrorResponse(appErr *AppError, requestID string) ErrorResponse {
@@ -152,43 +152,4 @@ func writeError(w http.ResponseWriter, appErr *AppError, requestID string) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		logger.Errorf("failed to write error response: %v", err)
 	}
-}
-
-// ============================================================================
-// Panic Recovery
-// ============================================================================
-
-func RecoverFromPanic() *AppError {
-	if r := recover(); r != nil {
-		var message string
-		if err, ok := r.(error); ok {
-			message = err.Error()
-		} else {
-			message = fmt.Sprintf("%v", r)
-		}
-
-		return &AppError{
-			Code:       ErrorCodeInternalError,
-			Message:    "panic recovered",
-			Details:    []string{message},
-			StatusCode: http.StatusInternalServerError,
-		}
-	}
-	return nil
-}
-
-// ============================================================================
-// Error Type Assertions
-// ============================================================================
-
-func IsAppError(err error) (*AppError, bool) {
-	appErr, ok := err.(*AppError)
-	return appErr, ok
-}
-
-func getStatusCode(err error) int {
-	if appErr, ok := IsAppError(err); ok {
-		return appErr.StatusCode
-	}
-	return http.StatusInternalServerError
 }

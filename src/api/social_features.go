@@ -1,7 +1,12 @@
+//go:build draft
+
+// Excluded from the default build: not routed from main.go, reads the caller from the
+// client-supplied X-User-ID header, and its tables exist only in
+// db/migrations/010_create_publishing_tables.sql. Build with -tags draft (see README).
+
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -324,7 +329,6 @@ func GetArticleReactions(w http.ResponseWriter, r *http.Request) {
 func ReactToComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commentID := vars["id"]
-	userID := r.Header.Get("X-User-ID")
 
 	var req struct {
 		Type string `json:"type"`
