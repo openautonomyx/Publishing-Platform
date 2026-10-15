@@ -30,10 +30,18 @@ test('health, authentication, validation and editorial lifecycle',async()=>{
  assert.equal((await call('/api/publications/'+id+'/submit','POST')).data.status,'in_review');
  assert.equal((await call('/api/publications/'+id+'/approve','POST')).data.status,'approved');
  assert.equal((await call('/api/publications/'+id+'/schedule','POST',{scheduledFor:'2020-01-01T00:00:00Z'})).status,422);
+ assert.equal((await call('/api/publications/'+id+'/schedule','POST',{scheduledFor:42})).status,422);
+ assert.equal((await call('/api/publications/'+id+'/schedule','POST',{scheduledFor:null})).status,422);
  const scheduled=await call('/api/publications/'+id+'/schedule','POST',{scheduledFor:new Date(Date.now()+60000).toISOString()});
  assert.equal(scheduled.data.status,'scheduled');
  assert.equal((await call('/api/publications/'+id+'/publish','POST')).data.status,'published');
  assert.equal((await call('/api/publications/'+id+'/archive','POST')).data.status,'archived');
  assert.equal((await call('/api/publications')).data.items.length,1);
  assert.equal(JSON.parse(fs.readFileSync(process.env.PUBLISHING_DATA_FILE,'utf8')).length,1);
+});
+
+test('rejects malformed JSON without mutating publications', async()=>{
+ const res=await fetch(base+'/api/publications',{method:'POST',headers:{Authorization:'Bearer '+process.env.PUBLISHING_API_TOKEN,'Content-Type':'application/json'},body:'{bad json'});
+ assert.equal(res.status,400);
+ assert.equal((await call('/api/publications')).data.items.length,1);
 });
