@@ -21,6 +21,11 @@ node --test workspace-api/server.test.cjs
 step 'Frontend TypeScript and Vite production build'
 (cd frontend && npm install --no-audit --no-fund && npm run build)
 
+if [[ "${RUN_DOCKER_SMOKE:-0}" == "1" ]] && { ! command -v docker >/dev/null || ! docker compose version >/dev/null 2>&1; }; then
+  echo 'ERROR: Docker Compose is required when RUN_DOCKER_SMOKE=1' >&2
+  exit 1
+fi
+
 if command -v docker >/dev/null && docker compose version >/dev/null 2>&1; then
   step 'Docker Compose schema validation'
   PUBLISHING_API_TOKEN='ci-validation-placeholder-token-32-chars' docker compose -f compose.workspace.yml config --quiet
@@ -42,7 +47,10 @@ if command -v docker >/dev/null && docker compose version >/dev/null 2>&1; then
       sleep 2
     done
     curl --silent --fail http://127.0.0.1:8080/ >/dev/null
-    echo 'Web smoke passed'
+    auth_status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8080/api/publications)
+    [[ "$auth_status" == '401' ]] || { echo "Expected 401 without token, got $auth_status" >&2; exit 1; }
+    curl --silent --show-error --fail --header "Authorization: Bearer $PUBLISHING_API_TOKEN" http://127.0.0.1:8080/api/publications | grep -q '"items"'
+    echo 'Web and authenticated API smoke passed'
   fi
 else
   echo 'SKIP: docker compose not available (container smoke not validated)'
