@@ -1,0 +1,14 @@
+# Temporary diagnostic for issue #6: does a workflow start when it uses sha-pinned?
+name: Probe sha-pinned
+on:
+  push:
+    branches: [claude/ci-startup-probe]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: echo "checkout (SHA-pinned) ran"
