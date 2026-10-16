@@ -7,7 +7,7 @@ export type SupportedLanguage =
   | 'ar' | 'hi' | 'th' | 'vi' | 'tr' | 'pl' | 'nl' | 'sv' | 'da' | 'no'
   | 'fi' | 'id' | 'ms' | 'tl' | 'bg' | 'cs' | 'hr' | 'ro' | 'sk' | 'sl'
   | 'hu' | 'el' | 'uk' | 'he' | 'fa' | 'ur' | 'bn' | 'ta' | 'te' | 'kn'
-  | 'ml' | 'af' | 'sq' | 'et' | 'lt' | 'lv' | 'mk';
+  | 'ml' | 'af' | 'sq' | 'et' | 'lt' | 'lv' | 'mk' | 'zip';
 
 export type SocialPlatform =
   | 'instagram' | 'twitter' | 'linkedin' | 'facebook' | 'tiktok' | 'youtube';

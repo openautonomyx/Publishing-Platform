@@ -30,7 +30,10 @@ export function validateContentRequest(request: ContentCreateRequest): void {
 export function validateLanguages(languages?: string[]): void {
   const validLanguages = [
     'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'zh', 'ko',
-    'ar', 'hi', 'th', 'vi', 'tr', 'pl', 'nl', 'sv', 'da', 'no'
+    'ar', 'hi', 'th', 'vi', 'tr', 'pl', 'nl', 'sv', 'da', 'no',
+    'fi', 'id', 'ms', 'tl', 'bg', 'cs', 'hr', 'ro', 'sk', 'sl',
+    'hu', 'el', 'uk', 'he', 'fa', 'ur', 'bn', 'ta', 'te', 'kn',
+    'ml', 'af', 'sq', 'et', 'lt', 'lv', 'mk', 'zip'
   ];
 
   if (languages) {
