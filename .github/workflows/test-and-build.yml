@@ -39,7 +39,7 @@ jobs:
         run: npm run generate:sbom --if-present
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: always()
         with:
           files: ./coverage/coverage-final.json
