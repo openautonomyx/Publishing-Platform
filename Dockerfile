@@ -6,6 +6,7 @@ WORKDIR /build
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY scripts/build-sdk.cjs ./scripts/build-sdk.cjs
 
 # Install dependencies
 RUN npm ci

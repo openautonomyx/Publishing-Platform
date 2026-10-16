@@ -2,7 +2,8 @@
  * Input validation utilities
  */
 
-import { ValidationError, ContentCreateRequest } from '../index';
+import { ContentCreateRequest } from '../types';
+import { ValidationError } from './errors';
 
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
