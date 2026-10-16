@@ -10,17 +10,18 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/build-sdk.cjs",
     "dev": "tsc --watch",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.ts",
+    "test": "node --test tests/*.test.cjs workspace-api/server.test.cjs",
+    "test:watch": "node --test --watch tests/*.test.cjs",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage tests/*.test.cjs workspace-api/server.test.cjs",
+    "lint": "eslint src/index.ts src/openautonomyx.ts src/types.ts src/services/ai.ts src/services/analytics.ts src/services/content.ts src/services/multilingual.ts src/services/publishing.ts src/services/team.ts src/services/templates.ts src/utils/*.ts",
     "format": "prettier --write src/**/*.ts",
     "prepublishOnly": "npm run build && npm run test",
     "publish:npm": "npm publish --access public",
     "docs": "typedoc src",
-    "version": "npm run format && git add -A"
+    "version": "npm run format && git add -A",
+    "pretest": "npm run build"
   },
   "keywords": [
     "openautonomyx",
@@ -53,10 +54,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openautonomyx/openautonomyx.git"
+    "url": "https://github.com/openautonomyx/Publishing-Platform.git"
   },
   "bugs": {
-    "url": "https://github.com/openautonomyx/openautonomyx/issues"
+    "url": "https://github.com/openautonomyx/Publishing-Platform/issues"
   },
   "homepage": "https://openautonomyx.com",
   "engines": {

@@ -7,7 +7,6 @@
  */
 
 // Core exports
-export * from './client';
 export * from './types';
 export * from './services/content';
 export * from './services/publishing';
@@ -18,7 +17,8 @@ export * from './services/ai';
 export * from './services/multilingual';
 
 // SDK initialization
-export { OpenAutonomyX } from './openautonomyx';
+export { OpenAutonomyX, createOpenAutonomyX } from './openautonomyx';
+export type { OpenAutonomyXConfig } from './openautonomyx';
 
 // Utilities
 export * from './utils/errors';
