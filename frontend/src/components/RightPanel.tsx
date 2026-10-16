@@ -1,4 +1,3 @@
-import React from 'react';
 import './RightPanel.css';
 
 interface RightPanelProps {
@@ -6,7 +5,7 @@ interface RightPanelProps {
   data: any;
 }
 
-function RightPanel({ context, data }: RightPanelProps) {
+function RightPanel({ context }: RightPanelProps) {
   const renderContextualContent = () => {
     switch (context) {
       case 'home':
