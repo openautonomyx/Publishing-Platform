@@ -57,7 +57,7 @@ func newTestEnv(t *testing.T) *testEnv {
 	}
 	t.Cleanup(func() { admin.Close() })
 	if err := admin.Ping(); err != nil {
-		t.Skipf("database not reachable (%v); skipping integration tests", err)
+		t.Fatalf("DATABASE_URL is set but database is not reachable: %v", err)
 	}
 	if _, err := admin.Exec(`CREATE SCHEMA ` + schema); err != nil {
 		t.Fatal(err)

@@ -19,7 +19,7 @@ step 'Publishing API integration tests'
 node --test workspace-api/server.test.cjs
 
 step 'Frontend TypeScript and Vite production build'
-(cd frontend && npm install --no-audit --no-fund && npm run build)
+(cd frontend && npm ci --no-audit --no-fund && npm run build)
 
 if command -v docker >/dev/null && docker compose version >/dev/null 2>&1; then
   step 'Docker Compose schema validation'
@@ -27,24 +27,20 @@ if command -v docker >/dev/null && docker compose version >/dev/null 2>&1; then
   if [[ "${RUN_DOCKER_SMOKE:-0}" == "1" ]]; then
     step 'Docker Compose build and local smoke'
     export PUBLISHING_API_TOKEN="${PUBLISHING_API_TOKEN:-$(node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))")}"
-    cleanup() { docker compose -f compose.workspace.yml down || true; }
+    # Isolate test state from an operator's existing Compose project.
+    export COMPOSE_PROJECT_NAME="publishing-smoke-$$"
+    docker info >/dev/null
+    cleanup() { docker compose -f compose.workspace.yml down --volumes || true; }
     trap cleanup EXIT
     docker compose -f compose.workspace.yml up --build -d
-    for attempt in $(seq 1 30); do
-      if curl --silent --fail http://127.0.0.1:8080/api/health | grep -q '"status":"ok"'; then
-        echo 'API health passed'
-        break
-      fi
-      if [[ "$attempt" == 30 ]]; then
-        echo 'API did not become healthy' >&2
-        exit 1
-      fi
-      sleep 2
-    done
-    curl --silent --fail http://127.0.0.1:8080/ >/dev/null
-    echo 'Web smoke passed'
+    node scripts/smoke-workspace.cjs
+
   fi
 else
+  if [[ "${RUN_DOCKER_SMOKE:-0}" == "1" ]]; then
+    echo 'FAIL: Docker Compose is required for requested smoke validation' >&2
+    exit 1
+  fi
   echo 'SKIP: docker compose not available (container smoke not validated)'
 fi
 step 'Validation commands finished successfully'
