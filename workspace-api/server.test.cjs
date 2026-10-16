@@ -45,3 +45,61 @@ test('rejects malformed JSON without mutating publications', async()=>{
  assert.equal(res.status,400);
  assert.equal((await call('/api/publications')).data.items.length,1);
 });
+
+test('rejects non-object JSON bodies with validation errors', async()=>{
+ for (const body of ['null', '[]', '42', '"text"']) {
+  const response=await fetch(base+'/api/publications',{method:'POST',headers:{Authorization:'Bearer '+process.env.PUBLISHING_API_TOKEN,'Content-Type':'application/json'},body});
+  assert.equal(response.status,422,body);
+ }
+});
+
+test('failed persistence never exposes an uncommitted create or edit', async()=>{
+ const file=process.env.PUBLISHING_DATA_FILE;
+ const original=fs.readFileSync(file);
+ const before=(await call('/api/publications')).data.items;
+ fs.renameSync(file,file+'.backup');
+ fs.mkdirSync(file); // Force the atomic replacement to fail deterministically.
+ try {
+  assert.equal((await call('/api/publications','POST',{title:'Must roll back',content:'Never committed'})).status,500);
+  assert.deepEqual((await call('/api/publications')).data.items,before);
+ } finally {
+  fs.rmdirSync(file);
+  fs.renameSync(file+'.backup',file);
+ }
+ assert.deepEqual(fs.readFileSync(file),original);
+ const created=await call('/api/publications','POST',{title:'Original',content:'Persisted body'});
+ fs.renameSync(file,file+'.backup');fs.mkdirSync(file);
+ try {
+  assert.equal((await call('/api/publications/'+created.data.id,'PUT',{title:'Uncommitted',content:'Uncommitted body'})).status,500);
+  const stored=(await call('/api/publications')).data.items.find(d=>d.id===created.data.id);
+  assert.deepEqual(stored,created.data);
+ } finally {fs.rmdirSync(file);fs.renameSync(file+'.backup',file);}
+});
+
+test('rechecks draft state after a slow edit body finishes arriving', async()=>{
+ const http=require('node:http');
+ const created=await call('/api/publications','POST',{title:'Race original',content:'Original body'});
+ const route='/api/publications/'+created.data.id;
+ const body=JSON.stringify({title:'Late edit',content:'Must not overwrite review content'});
+ let request;
+ const response=new Promise((resolve,reject)=>{
+  request=http.request(base+route,{method:'PUT',headers:{Authorization:'Bearer '+process.env.PUBLISHING_API_TOKEN,'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)}},res=>{
+   res.resume();res.on('end',()=>resolve(res.statusCode));
+  });
+  request.on('error',reject);
+  request.write(body.slice(0,10));
+ });
+ // Give the server a turn to observe the partial body before the transition.
+ await new Promise(resolve=>setTimeout(resolve,30));
+ assert.equal((await call(route+'/submit','POST')).status,200);
+ request.end(body.slice(10));
+ assert.equal(await response,409);
+ const stored=(await call('/api/publications')).data.items.find(d=>d.id===created.data.id);
+ assert.equal(stored.status,'in_review');assert.equal(stored.title,'Race original');
+});
+
+test('oversized body is rejected and subsequent requests remain usable', async()=>{
+ const res=await fetch(base+'/api/publications',{method:'POST',headers:{Authorization:'Bearer '+process.env.PUBLISHING_API_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({title:'Too big',content:'x'.repeat(1024*1024)})});
+ assert.equal(res.status,413);
+ assert.equal((await call('/api/health')).status,200);
+});
