@@ -457,13 +457,13 @@ Provide response in this exact JSON format:
     content: NativeContent,
     scheduleTime?: Date
   ): Promise<{ success: boolean; url: string; platform: string }> {
-    // This would integrate with actual social media APIs
-    // For now, return mock response
-    return {
-      success: true,
-      url: `https://${platform}.com/post/${Date.now()}`,
-      platform,
-    };
+    // No provider adapter is connected. Never report a synthetic success or URL.
+    void platform;
+    void content;
+    void scheduleTime;
+    throw new Error(
+      "Social publishing is not configured. Connect an authenticated provider adapter before posting."
+    );
   }
 
   /**
@@ -478,15 +478,11 @@ Provide response in this exact JSON format:
     reach: number;
     sentiment: "positive" | "neutral" | "negative";
   }> {
-    // Integration point for analytics
-    return {
-      language: LANGUAGE_MAP[language],
-      engagement: Math.floor(Math.random() * 10000),
-      reach: Math.floor(Math.random() * 100000),
-      sentiment: ["positive", "neutral", "negative"][
-        Math.floor(Math.random() * 3)
-      ] as any,
-    };
+    void publicationId;
+    void language;
+    throw new Error(
+      "Performance analytics is not configured. Connect a real analytics provider before requesting metrics."
+    );
   }
 }
 
