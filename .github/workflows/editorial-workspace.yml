@@ -4,6 +4,10 @@ on:
     paths:
       - 'workspace-api/**'
       - 'frontend/**'
+      - 'tests/language-registry.test.cjs'
+      - 'src/types.ts'
+      - 'src/utils/validators.ts'
+      - 'agi-native-language.ts'
       - '.github/workflows/editorial-workspace.yml'
       - 'scripts/**'
       - 'compose.workspace.yml'
@@ -11,6 +15,10 @@ on:
     paths:
       - 'workspace-api/**'
       - 'frontend/**'
+      - 'tests/language-registry.test.cjs'
+      - 'src/types.ts'
+      - 'src/utils/validators.ts'
+      - 'agi-native-language.ts'
       - '.github/workflows/editorial-workspace.yml'
       - 'scripts/**'
       - 'compose.workspace.yml'
@@ -26,5 +34,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Verify language registry consistency
+        run: node --test tests/language-registry.test.cjs
       - name: Validate tests, frontend, and container lifecycle
         run: RUN_DOCKER_SMOKE=1 bash scripts/validate-workspace.sh
